@@ -1,33 +1,58 @@
 .bbq-preview.refined .category-nav {
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  gap: 7px;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  padding: 10px 14px;
-  border-bottom-color: #392622;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
+  overflow: visible;
+  position: sticky;
+  padding: 4px 10px 6px;
+  background: #171311;
+  border-bottom: 0;
 }
-.bbq-preview.refined .category-nav::-webkit-scrollbar { display: none; }
+.bbq-preview.refined .category-nav::before,
+.bbq-preview.refined .category-nav::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  height: 6px;
+}
+.bbq-preview.refined .category-nav::before {
+  left: 10px;
+  right: 10px;
+  background: #513832;
+}
+.bbq-preview.refined .category-nav::after {
+  left: 10px;
+  width: calc((100% - 20px) / 7);
+  background: #e3292c;
+  transform: translateX(var(--active-offset, 0%));
+  transition: transform .3s ease;
+}
 .bbq-preview.refined .category-nav a {
-  flex: 0 0 auto;
-  min-height: 42px;
-  padding: 8px 15px;
-  border-radius: 24px;
-  white-space: nowrap;
-  background: #211b19;
-  border-color: #553b36;
+  min-width: 0;
+  min-height: 52px;
+  padding: 3px 1px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #d6cbc6;
+  font: 400 16px / 1.05 "Bebas Neue", sans-serif;
+  letter-spacing: .01em;
+  white-space: normal;
+  text-align: center;
 }
 .bbq-preview.refined .category-nav a[aria-current="location"] {
-  background: #d91f26;
-  border-color: #d91f26;
+  border: 0;
+  background: #4a2623;
+  color: #fff;
 }
+.bbq-preview.refined .category-label-mobile { display: none; }
 @media (max-width: 680px) {
   .bbq-preview.refined .category-nav {
     width: calc(100% + 2.5rem);
     margin-inline: -1.25rem;
-    padding-inline: 20px;
-    scroll-padding-inline: 20px;
+    padding-inline: 10px;
   }
+  .bbq-preview.refined .category-nav a { font-size: clamp(13px, 3.55vw, 15px); }
+  .bbq-preview.refined .category-label-full { display: none; }
+  .bbq-preview.refined .category-label-mobile { display: inline; }
 }

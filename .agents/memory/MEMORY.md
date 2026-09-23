@@ -1,0 +1,1 @@
+- [Mobile menu navigation preference](mobile-menu-preference.md) — user favors a thin persistent strip with all categories visible and a prominent active indicator.

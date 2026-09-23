@@ -13,6 +13,7 @@ let selectedId = null;
 let cart = loadCart();
 const categoryNav = document.querySelector('.category-nav');
 const categoryLinks = [...categoryNav.querySelectorAll('a')];
+const floatingCart = document.querySelector('.floating-cart');
 const categoryHeadings = categoryLinks.map(link =>
   document.getElementById(link.hash.slice(1)).querySelector('.menu-section-heading'));
 let ignoreScrollUntil = 0;
@@ -42,16 +43,13 @@ function setActiveCategory(index) {
     if (i === index) link.setAttribute('aria-current', 'location');
     else link.removeAttribute('aria-current');
   });
-  const link = categoryLinks[index];
-  const navRect = categoryNav.getBoundingClientRect();
-  const left = categoryNav.scrollLeft + link.getBoundingClientRect().left - navRect.left
-    - (navRect.width - link.getBoundingClientRect().width) / 2;
-  categoryNav.scrollTo({ left, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+  categoryNav.style.setProperty('--active-offset', `${index * 100}%`);
 }
 
 function syncActiveCategory() {
-  if (performance.now() < ignoreScrollUntil) return;
   const headerHeight = document.querySelector('header').getBoundingClientRect().height;
+  floatingCart.classList.toggle('is-visible', categoryNav.getBoundingClientRect().top <= headerHeight + 2);
+  if (performance.now() < ignoreScrollUntil) return;
   const threshold = headerHeight + categoryNav.getBoundingClientRect().height + 28;
   let index = 0;
   categoryHeadings.forEach((heading, i) => {
