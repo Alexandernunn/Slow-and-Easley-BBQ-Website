@@ -7,6 +7,7 @@ const sides = menu.find(section => section.category === 'Sides').items.map(item 
 const itemDialog = document.querySelector('#item-dialog');
 const itemForm = document.querySelector('#item-form');
 const cartDialog = document.querySelector('#cart-dialog');
+const checkoutDialog = document.querySelector('#checkout-dialog');
 const cartItems = document.querySelector('#cart-items');
 const status = document.querySelector('#cart-status');
 let selectedId = null;
@@ -50,6 +51,27 @@ const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({
 })[char]);
 const unitPrice = row => catalog.get(row.id).price + (row.cheese ? 1 : 0);
 const rowKey = row => JSON.stringify([row.id, row.sides, row.cheese, row.style]);
+
+// Future live checkout should send only IDs, quantities and selections to a server.
+// The server must revalidate the menu and calculate prices before creating a Square payment link.
+function checkoutDraft() {
+  const items = cart.map(row => {
+    const item = catalog.get(row.id);
+    return {
+      category: menu[item.section].category,
+      name: item.name,
+      quantity: row.qty,
+      sides: row.sides,
+      style: row.style,
+      cheese: row.cheese,
+      unitPriceCents: Math.round(unitPrice(row) * 100)
+    };
+  });
+  return {
+    items,
+    subtotalCents: items.reduce((sum, item) => sum + item.unitPriceCents * item.quantity, 0)
+  };
+}
 
 function save() {
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); } catch { /* unavailable storage */ }
@@ -124,6 +146,23 @@ function renderCart() {
   textLink.dataset.message = message;
   textLink.setAttribute('aria-disabled', String(cart.length === 0));
   document.querySelector('#copy-order').disabled = cart.length === 0;
+  document.querySelector('#preview-checkout').disabled = cart.length === 0;
+  if (checkoutDialog.open) renderCheckout();
+}
+
+function renderCheckout() {
+  const draft = checkoutDraft();
+  document.querySelector('#checkout-items').innerHTML = draft.items.map(item => `
+    <div class="checkout-line">
+      <div><strong>${item.quantity} × ${escapeHtml(item.name)}</strong>
+        ${item.style ? `<small>${escapeHtml(item.style)} style</small>` : ''}
+        ${item.sides.length ? `<small>Sides: ${item.sides.map(escapeHtml).join(', ')}</small>` : ''}
+        ${item.cheese ? '<small>With cheese</small>' : ''}
+      </div>
+      <span>${money(item.unitPriceCents * item.quantity / 100)}</span>
+    </div>`).join('');
+  document.querySelector('#checkout-subtotal').textContent = money(draft.subtotalCents / 100);
+  document.querySelector('#checkout-total').textContent = money(draft.subtotalCents / 100);
 }
 
 document.addEventListener('click', event => {
@@ -174,7 +213,19 @@ document.querySelector('#text-order').addEventListener('click', event => {
   if (!cart.length) event.preventDefault();
 });
 
-for (const dialog of [itemDialog, cartDialog]) {
+document.querySelector('#preview-checkout').addEventListener('click', () => {
+  if (!cart.length) return;
+  renderCheckout();
+  cartDialog.close();
+  checkoutDialog.showModal();
+});
+
+document.querySelector('#edit-order').addEventListener('click', () => {
+  checkoutDialog.close();
+  cartDialog.showModal();
+});
+
+for (const dialog of [itemDialog, cartDialog, checkoutDialog]) {
   dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
 }
 save();

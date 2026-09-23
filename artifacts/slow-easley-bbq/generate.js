@@ -423,9 +423,28 @@ ${menuFooter}
   <div class="cart-summary"><span>Estimated subtotal</span><strong id="cart-subtotal">$0.00</strong></div>
   <p class="cart-disclaimer">Tax, availability, and pickup details are confirmed by the restaurant. This is not a placed or paid order.</p>
   <a id="text-order" class="dialog-primary" href="sms:${restaurant.phone}">Text this order</a>
+  <button id="preview-checkout" class="dialog-secondary" type="button" disabled>Preview Square checkout · demo</button>
   <button id="copy-order" class="dialog-secondary" type="button">Copy order details</button>
   <a class="call-order" href="tel:${restaurant.phone}">Or call ${restaurant.displayPhone}</a>
   <p id="cart-status" role="status" aria-live="polite"></p>
+</dialog>
+<dialog id="checkout-dialog" class="order-dialog checkout-dialog" aria-labelledby="checkout-title">
+  <div class="dialog-heading"><div><p class="menu-kicker">Checkout preview</p><h2 id="checkout-title">Review your order</h2></div><button class="dialog-close" type="button" data-close aria-label="Close">×</button></div>
+  <p class="checkout-demo-banner"><strong>Demo only</strong> — Square is not connected. No payment or order can be submitted here.</p>
+  <div class="checkout-steps" aria-label="Checkout steps"><span class="is-current">1. Review</span><span>2. Pickup</span><span>3. Square payment</span></div>
+  <div class="checkout-section-heading"><h3>Your items</h3><button id="edit-order" type="button">Edit order</button></div>
+  <div id="checkout-items" class="checkout-items"></div>
+  <div class="checkout-totals">
+    <div><span>Subtotal</span><strong id="checkout-subtotal"></strong></div>
+    <div><span>Tax &amp; fees</span><span>Calculated at live checkout</span></div>
+    <div class="checkout-total"><span>Estimated total before tax</span><strong id="checkout-total"></strong></div>
+  </div>
+  <div class="checkout-next">
+    <span class="checkout-next-number">02 / Pickup &amp; payment</span>
+    <p>When checkout is connected, customers will confirm pickup details and continue to Square’s secure payment page.</p>
+    <button type="button" disabled>Continue to Square — not connected</button>
+    <small>No card details are requested or stored in this demo.</small>
+  </div>
 </dialog>
 </body>
 </html>`;
