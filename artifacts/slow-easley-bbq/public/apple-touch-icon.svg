@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180">
+  <rect width="180" height="180" fill="#0a0a0a"/>
+  <circle cx="90" cy="90" r="70" fill="none" stroke="#d91f26" stroke-width="6"/>
+  <text x="90" y="115" font-family="Impact, sans-serif" font-size="70" fill="#d91f26" text-anchor="middle">S&amp;E</text>
+</svg>

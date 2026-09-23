@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "Bebas Neue";
+  src: url("/fonts/bebas-neue-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  src: url("/fonts/barlow-regular-latin.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow";
+  src: url("/fonts/barlow-semibold-latin.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@theme {
+  --font-display: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  --font-body: "Barlow", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Smoke & Fire */
+.bg-glow {
+  position: absolute;
+  pointer-events: none;
+  background: radial-gradient(circle at center, rgba(217, 31, 38, 0.15) 0%, rgba(255, 140, 0, 0.05) 40%, transparent 70%);
+  filter: blur(40px);
+  z-index: 0;
+  animation: pulse-glow 6s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(1) translate(0, 0); opacity: 0.8; }
+  50% { transform: scale(1.1) translate(-2%, 2%); opacity: 1; }
+  100% { transform: scale(0.95) translate(2%, -2%); opacity: 0.9; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Slow & Easley BBQ & Soul Food"
+description = "A fast, mobile-first Tennessee BBQ restaurant website with crawlable menu, contact information and local search metadata."
+version = "1.0.0"
+id = "artifacts/slow-easley-bbq"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25338
+
+[services.development]
+run = "pnpm --filter @workspace/slow-easley-bbq run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/slow-easley-bbq", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/slow-easley-bbq/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25338"
+BASE_PATH = "/"

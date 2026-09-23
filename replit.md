@@ -1,15 +1,16 @@
-# [Project name]
+# Slow & Easley BBQ & Soul Food
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Mobile-first static restaurant site with a crawlable menu and local search metadata.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/slow-easley-bbq run dev` — regenerate and preview the restaurant website using its managed workflow
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- The restaurant website does not need an API, database, or secret.
 
 ## Stack
 
@@ -22,23 +23,27 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/slow-easley-bbq/menu-data.js` — menu, prices, and business details.
+- `artifacts/slow-easley-bbq/generate.js` — static HTML, JSON-LD, sitemap, and robots generator.
+- `artifacts/slow-easley-bbq/src/style.css` — lightweight site styles and self-hosted fonts.
+- `artifacts/slow-easley-bbq/README.md` — launch checklist and placeholder replacement instructions.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- The public site intentionally ships no React runtime despite using the Vite artifact template; static HTML keeps menu text available to crawlers without JavaScript.
+- Business details are placeholders until verified, so phone, map, and social interactions are disabled rather than leading visitors to invented destinations.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+One-page menu, restaurant story, location and hours area, responsive call-to-order controls, and search/social metadata.
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Prioritize page speed and Google SEO over effects and framework complexity; keep the menu and its schema generated from the same data source.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Replace the canonical domain and verified contact/location/hours details before publishing; see the artifact README. A local Lighthouse score does not establish real-user Core Web Vitals.
 
 ## Pointers
 
