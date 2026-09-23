@@ -18,9 +18,16 @@ document.querySelectorAll('.category-nav a, .order-hero-actions a[href^="#"]').f
     if (!target) return;
     event.preventDefault();
     history.pushState(null, '', link.getAttribute('href'));
-    target.scrollIntoView({
-      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
-      block: 'start'
+    const headerHeight = document.querySelector('header').getBoundingClientRect().height;
+    const navHeight = document.querySelector('.category-nav').getBoundingClientRect().height;
+    const heading = target.querySelector('.menu-section-heading') || target;
+    window.scrollTo({
+      top: Math.max(0, window.scrollY + heading.getBoundingClientRect().top - headerHeight - navHeight - 16),
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    });
+    document.querySelectorAll('.category-nav a').forEach(categoryLink => {
+      if (categoryLink.getAttribute('href') === link.getAttribute('href')) categoryLink.setAttribute('aria-current', 'location');
+      else categoryLink.removeAttribute('aria-current');
     });
   });
 });

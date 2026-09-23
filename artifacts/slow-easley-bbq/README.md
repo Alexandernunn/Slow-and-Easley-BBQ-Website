@@ -4,16 +4,16 @@ The public homepage and `/menu/` are generated as static HTML from `menu-data.js
 
 ## Before publishing
 
-Replace these placeholders in `menu-data.js`:
+Confirm the following before publishing:
 
 - `siteConfig.canonicalUrl`: currently `https://slowandeasleybbq.com`, sourced from the public site the owner supplied. Ensure this deployment is actually connected to that domain before publishing, or update the canonical URL to the correct live address.
-- `restaurant.address.street`, `city`, and `postalCode`: actual street address, city, ZIP. Confirm state/region and country.
+- `restaurant.address`: 3612 Gallatin Pike, Nashville, TN 37216. Street, city, and hours came from the supplied location announcement; the ZIP and exact-address coordinates were cross-checked with address listings and OpenStreetMap geocoding.
 - `restaurant.phone` and `displayPhone`: currently `(615) 988-0697`, sourced from the public site. Confirm it is the right number for food orders before launch; it is used by the call links.
-- `restaurant.hours` and `openingHours`: visible opening hours and corresponding structured schedule. For `openingHours`, use objects such as `{ dayOfWeek: ["Monday", "Tuesday"], opens: "11:00", closes: "20:00" }`; do not guess business hours.
-- `restaurant.geo.latitude` and `longitude`: actual coordinates. The map link appears only after a street address **and** coordinates have been set.
+- `restaurant.hours` and `openingHours`: Wednesday–Sunday, 11:00 AM–7:30 PM, based on the supplied announcement. Monday and Tuesday are not listed as open.
+- `restaurant.geo.latitude` and `longitude`: exact-address coordinates from OpenStreetMap geocoding. The directions link uses the street address so visitors land on the right location even if map providers update their coordinates.
 - `restaurant.social.facebook` and `instagram`: sourced from the public site. Confirm those are the intended profiles.
 
-Replace the branded placeholder social image at `public/og-image.png` (1200 × 630), the `public/apple-touch-icon.png` (180 × 180), and the static map placeholder in `generate.js` with approved imagery when available. If adding photographs, serve responsive AVIF/WebP with a JPEG fallback, dimensions, descriptive alt text, and lazy loading below the fold. A raster hero should be preloaded and marked `fetchpriority="high"`; the current CSS/SVG hero needs no image request.
+Replace the branded placeholder social image at `public/og-image.png` (1200 × 630) and the `public/apple-touch-icon.png` (180 × 180) with approved imagery when available. The address card links to Google Maps and intentionally uses a decorative background rather than a fake map. If adding photographs, serve responsive AVIF/WebP with a JPEG fallback, dimensions, descriptive alt text, and lazy loading below the fold. A raster hero should be preloaded and marked `fetchpriority="high"`; the current CSS/SVG hero needs no image request.
 
 Once the actual domain and business details are in place, validate the published URL with Google's Rich Results Test and PageSpeed Insights. Structured data is generated from the same menu as the visible HTML, but search appearance and field Core Web Vitals cannot be guaranteed from a local audit.
 

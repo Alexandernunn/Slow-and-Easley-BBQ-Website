@@ -9,20 +9,21 @@ export const restaurant = {
   description: "Tennessee BBQ & Fried Fish",
   tagline: "BBQ & Soul Food",
   address: {
-    street: "123 Main St [PLACEHOLDER]",
-    city: "[CITY]",
+    street: "3612 Gallatin Pike",
+    city: "Nashville",
     region: "TN",
-    postalCode: "[ZIP]",
+    postalCode: "37216",
     country: "US"
   },
   phone: "+16159880697",
   displayPhone: "(615) 988-0697",
-  hours: "Mo-Su 11:00-20:00 [PLACEHOLDER]",
-  // Add actual schedules here when hours are confirmed; do not publish invented opening hours.
-  openingHours: [],
+  hours: "Wednesday–Sunday, 11:00 AM–7:30 PM",
+  openingHours: [
+    { dayOfWeek: ["Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], opens: "11:00", closes: "19:30" }
+  ],
   geo: {
-    latitude: null,
-    longitude: null
+    latitude: 36.2122825,
+    longitude: -86.7319993
   },
   social: {
     facebook: "https://www.facebook.com/profile.php?id=100091425579125",
@@ -41,7 +42,8 @@ export const menu = [
       { name: "Smoked Chicken Wings, 6 whole", price: 25, description: "Served with ranch and a roll" },
       { name: "Spaghetti", price: 12, description: "Made with seasoned ground beef" },
       { name: "Smoked Chicken Leg Quarters (2)", price: 15, description: "Seasoned and slow-cooked to perfection" },
-      { name: "Fish + Spaghetti", price: 20, description: "Fried whitefish (Cajun or regular) with a generous portion of spaghetti, white onions, pickles, bread, hot sauce & mustard on the side. Add cheese to fish +$1" }
+      { name: "Fish + Spaghetti", price: 20, description: "Fried whitefish (Cajun or regular) with a generous portion of spaghetti, white onions, pickles, bread, hot sauce & mustard on the side. Add cheese to fish +$1" },
+      { name: "Rib Plate / 2 Sides", price: 20 }
     ]
   },
   {
@@ -85,6 +87,12 @@ export const menu = [
     note: "Regular or Spicy. Half Slab (6 bones) comes with 1 sauce, Whole Slab (12 bones) comes with 2 sauces.",
     items: [
       { name: "Additional Sauce", price: 1 }
+    ]
+  },
+  {
+    category: "Beverages",
+    items: [
+      { name: "Koolaid Juice", price: 5 }
     ]
   }
 ];

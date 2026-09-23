@@ -17,6 +17,7 @@ const hasRealSocialInstagram = !restaurant.social.instagram.includes('placeholde
 const isRealCity = !restaurant.address.city.includes('[CITY]');
 const displayCity = isRealCity ? restaurant.address.city : '[CITY]';
 const siteUrl = siteConfig.canonicalUrl.replace(/\/$/, ''); // ensure no trailing slash
+const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${restaurant.address.street}, ${restaurant.address.city}, ${restaurant.address.region} ${restaurant.address.postalCode}`)}`;
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -228,7 +229,7 @@ const html = `<!DOCTYPE html>
                   Location
                 </h3>
                 <p class="text-zinc-300 text-xl">
-             ${hasRealAddress && hasRealCoordinates ? `
+              ${hasRealAddress ? `
                     ${restaurant.address.street}<br/>
                     ${displayCity}, ${restaurant.address.region} ${restaurant.address.postalCode}
                   ` : `
@@ -264,13 +265,16 @@ const html = `<!DOCTYPE html>
           
           <div class="relative w-full aspect-video md:aspect-square lg:aspect-video bg-zinc-900 border border-zinc-800 flex items-center justify-center overflow-hidden">
             ${hasRealAddress ? `
-            <a href="https://maps.google.com/?q=${restaurant.geo.latitude},${restaurant.geo.longitude}" target="_blank" rel="noopener noreferrer" aria-label="Open location in Google Maps" class="absolute inset-0 group focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#d91f26]">
-              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23111'/%3E%3Cpath d='M0,100 L800,200 M0,300 L800,100 M200,0 L300,600 M600,0 L500,600' stroke='%23222' stroke-width='4'/%3E%3Ctext x='400' y='300' font-family='sans-serif' font-size='24' fill='%23666' text-anchor='middle'%3EMAP PLACEHOLDER%3C/text%3E%3C/svg%3E" alt="Map placeholder for Slow &amp; Easley location" class="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity" loading="lazy" width="800" height="600" />
-              <div class="absolute inset-0 flex flex-col items-center justify-center">
-                <div class="bg-[#d91f26] text-white p-4 rounded-full mb-3 shadow-[0_0_20px_rgba(217,31,38,0.5)] group-hover:scale-110 transition-transform">
+            <a href="${directionsUrl}" target="_blank" rel="noopener noreferrer" aria-label="Get directions to ${restaurant.address.street}, ${displayCity}, ${restaurant.address.region} ${restaurant.address.postalCode} in Google Maps" class="absolute inset-0 group flex flex-col items-center justify-center text-center p-6 focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-[#d91f26]">
+              <div class="absolute inset-0 opacity-30 pointer-events-none" aria-hidden="true" style="background-image:repeating-linear-gradient(125deg,transparent 0px,transparent 78px,#8b5347 79px,#8b5347 81px,transparent 82px,transparent 175px),repeating-linear-gradient(27deg,transparent 0px,transparent 110px,#685850 111px,#685850 113px,transparent 114px,transparent 220px)"></div>
+              <div class="relative flex flex-col items-center">
+                <div class="bg-[#d91f26] text-white p-4 rounded-full mb-5 shadow-[0_0_20px_rgba(217,31,38,0.5)] group-hover:scale-110 transition-transform">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                 </div>
-                <span class="bg-[#0a0a0a]/90 font-display tracking-widest uppercase px-6 py-2 text-white border border-zinc-800 group-hover:border-[#d91f26] transition-colors">Get Directions</span>
+                <span class="text-[#ff8587] uppercase tracking-[.2em] font-semibold text-sm">Permanent location</span>
+                <span class="font-display text-4xl md:text-5xl uppercase mt-2">${restaurant.address.street}</span>
+                <span class="text-zinc-200 text-lg">${displayCity}, ${restaurant.address.region} ${restaurant.address.postalCode}</span>
+                <span class="bg-[#d91f26] font-display tracking-widest uppercase px-6 py-2 mt-6 text-white group-hover:bg-white group-hover:text-black transition-colors">Get Directions ↗</span>
               </div>
             </a>
             ` : `
@@ -311,6 +315,7 @@ const html = `<!DOCTYPE html>
             ` : `
               <span class="cursor-not-allowed">Phone Pending</span>
             `}
+            ${hasRealHours ? `<br/><span class="inline-block mt-3">${restaurant.hours}</span>` : ''}
           </address>
         </div>
         
