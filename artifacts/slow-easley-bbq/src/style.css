@@ -131,7 +131,6 @@ body {
 .cart-summary strong { color: #ff8587; }
 .cart-disclaimer { margin: .6rem 0 1.3rem; }
 .call-order { display: block; text-align: center; margin-top: 1rem; text-decoration: underline; }
-#cart-status { color: #fff; text-align: center; margin-top: .8rem; }
 .cart-dialog #preview-checkout { border-color: #e68675; background: #31201d; }
 .cart-dialog #preview-checkout:hover:not(:disabled) { background: #4b2823; }
 .checkout-dialog { width: min(100% - 1.5rem, 590px); }

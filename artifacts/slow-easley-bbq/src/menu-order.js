@@ -1,4 +1,4 @@
-import { menu, restaurant } from '../menu-data.js';
+import { menu } from '../menu-data.js';
 
 const STORAGE_KEY = 'slow-easley-order-v1';
 const catalog = new Map(menu.flatMap((section, si) =>
@@ -9,7 +9,6 @@ const itemForm = document.querySelector('#item-form');
 const cartDialog = document.querySelector('#cart-dialog');
 const checkoutDialog = document.querySelector('#checkout-dialog');
 const cartItems = document.querySelector('#cart-items');
-const status = document.querySelector('#cart-status');
 let selectedId = null;
 let cart = loadCart();
 
@@ -119,7 +118,6 @@ function showOptions(id) {
 }
 
 function renderCart() {
-  status.textContent = '';
   const subtotal = cart.reduce((sum, row) => sum + unitPrice(row) * row.qty, 0);
   cartItems.innerHTML = cart.length ? cart.map((row, index) => {
     const item = catalog.get(row.id);
@@ -137,15 +135,6 @@ function renderCart() {
     </div>`;
   }).join('') : '<p class="empty-cart">Your order is empty. Add anything from the menu to get started.</p>';
   document.querySelector('#cart-subtotal').textContent = money(subtotal);
-  const message = `Hi Slow & Easley! I'd like to ask about this order:\n\n${cart.map(row => {
-    const item = catalog.get(row.id);
-    return `${row.qty} × ${item.name}${row.style ? ` (${row.style})` : ''}${row.sides.length ? ` (sides: ${row.sides.join(', ')})` : ''}${row.cheese ? ' (+ cheese)' : ''} — ${money(unitPrice(row) * row.qty)}`;
-  }).join('\n')}\n\nEstimated subtotal: ${money(subtotal)} before tax. Please confirm availability, total, and pickup details.`;
-  const textLink = document.querySelector('#text-order');
-  textLink.href = `sms:${restaurant.phone}?body=${encodeURIComponent(message)}`;
-  textLink.dataset.message = message;
-  textLink.setAttribute('aria-disabled', String(cart.length === 0));
-  document.querySelector('#copy-order').disabled = cart.length === 0;
   document.querySelector('#preview-checkout').disabled = cart.length === 0;
   if (checkoutDialog.open) renderCheckout();
 }
@@ -198,19 +187,6 @@ document.querySelector('#item-options').addEventListener('change', event => {
     document.querySelector('#item-dialog-price').textContent =
       money(catalog.get(selectedId).price + (event.target.checked ? 1 : 0));
   }
-});
-
-document.querySelector('#copy-order').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText(document.querySelector('#text-order').dataset.message);
-    status.textContent = 'Order details copied. Text or call us to confirm.';
-  } catch {
-    status.textContent = 'Could not copy automatically. Please use the text or call option.';
-  }
-});
-
-document.querySelector('#text-order').addEventListener('click', event => {
-  if (!cart.length) event.preventDefault();
 });
 
 document.querySelector('#preview-checkout').addEventListener('click', () => {

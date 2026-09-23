@@ -373,7 +373,7 @@ fs.writeFileSync(path.join(__dirname, 'index.html'), html.replace(/\n[ \t]+/g, '
 const homeHead = html.match(/<head>[\s\S]*?<\/head>/)[0];
 const menuHead = homeHead
   .replace(`<title>${restaurant.name} | Tennessee BBQ</title>`, `<title>Menu &amp; Order | ${restaurant.name}</title>`)
-  .replace(`Smoked BBQ, fried whitefish, and scratch-made soul food in ${displayCity}. View our menu and order today.`, `Explore the full Slow & Easley BBQ & Soul Food menu, add your favorites to an order, then text us to confirm availability and pickup.`)
+  .replace(`Smoked BBQ, fried whitefish, and scratch-made soul food in ${displayCity}. View our menu and order today.`, `Explore the full Slow & Easley BBQ & Soul Food menu, add your favorites to an order, then call to confirm availability and pickup.`)
   .replace(`<meta property="og:title" content="${restaurant.name}">`, `<meta property="og:title" content="Menu &amp; Order | ${restaurant.name}">`)
   .replace(`<meta name="twitter:title" content="${restaurant.name}">`, `<meta name="twitter:title" content="Menu &amp; Order | ${restaurant.name}">`)
   .replace(`<meta property="og:url" content="${siteUrl}">`, `<meta property="og:url" content="${siteUrl}/menu/">`)
@@ -393,7 +393,7 @@ ${menuHeader}
   <div class="order-hero">
     <p class="menu-kicker">Slow smoked · Made with soul</p>
     <h1>The menu<span class="hero-period">.</span></h1>
-    <p>Pick your favorites. We’ll get the details ready for you to text us.</p>
+    <p>Pick your favorites and review your order before calling us.</p>
     <div class="order-hero-actions">
       <a href="#category-0">Explore the menu ↓</a>
       <button type="button" data-open-cart>View order <span data-cart-count>0</span></button>
@@ -405,7 +405,7 @@ ${menuHeader}
     </nav>
     ${renderOrderMenu()}
   </div>
-  <div class="order-ending"><span>Good food takes time.</span><p>Call or text to confirm your order and pickup details.</p></div>
+  <div class="order-ending"><span>Good food takes time.</span><p>Call to confirm your order and pickup details.</p></div>
   <noscript><p class="text-center p-6">To build an order, enable JavaScript, or call us at <a href="tel:${restaurant.phone}">${restaurant.displayPhone}</a>.</p></noscript>
 </main>
 ${menuFooter}
@@ -422,11 +422,8 @@ ${menuFooter}
   <div id="cart-items"></div>
   <div class="cart-summary"><span>Estimated subtotal</span><strong id="cart-subtotal">$0.00</strong></div>
   <p class="cart-disclaimer">Tax, availability, and pickup details are confirmed by the restaurant. This is not a placed or paid order.</p>
-  <a id="text-order" class="dialog-primary" href="sms:${restaurant.phone}">Text this order</a>
   <button id="preview-checkout" class="dialog-secondary" type="button" disabled>Preview Square checkout · demo</button>
-  <button id="copy-order" class="dialog-secondary" type="button">Copy order details</button>
-  <a class="call-order" href="tel:${restaurant.phone}">Or call ${restaurant.displayPhone}</a>
-  <p id="cart-status" role="status" aria-live="polite"></p>
+  <a class="call-order" href="tel:${restaurant.phone}">Call to order: ${restaurant.displayPhone}</a>
 </dialog>
 <dialog id="checkout-dialog" class="order-dialog checkout-dialog" aria-labelledby="checkout-title">
   <div class="dialog-heading"><div><p class="menu-kicker">Checkout preview</p><h2 id="checkout-title">Review your order</h2></div><button class="dialog-close" type="button" data-close aria-label="Close">×</button></div>
