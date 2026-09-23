@@ -5,6 +5,15 @@ import { defineConfig } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
+const redirectMenu = (server: { middlewares: { use: (handler: (req: { url?: string }, res: { statusCode: number; setHeader: (key: string, value: string) => void; end: () => void }, next: () => void) => void) => void } }) => {
+  server.middlewares.use((req, res, next) => {
+    if (req.url?.split('?')[0] !== '/menu') return next();
+    res.statusCode = 308;
+    res.setHeader('Location', `/menu/${req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''}`);
+    res.end();
+  });
+};
+
 const rawPort = process.env.PORT;
 
 if (!rawPort) {
@@ -30,6 +39,11 @@ if (!basePath) {
 export default defineConfig({
   base: basePath,
   plugins: [
+    {
+      name: 'menu-trailing-slash',
+      configureServer: redirectMenu,
+      configurePreviewServer: redirectMenu,
+    },
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
@@ -63,6 +77,12 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, 'dist/public'),
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        home: path.resolve(import.meta.dirname, 'index.html'),
+        menu: path.resolve(import.meta.dirname, 'menu/index.html'),
+      },
+    },
   },
   server: {
     port,

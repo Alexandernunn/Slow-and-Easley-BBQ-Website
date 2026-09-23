@@ -51,7 +51,7 @@ const jsonLd = {
   "hasMenu": {
     "@type": "Menu",
     "name": "Slow & Easley Menu",
-    "url": `${siteUrl}/#menu`,
+    "url": `${siteUrl}/menu/`,
     "hasMenuSection": menu.map(section => ({
       "@type": "MenuSection",
       "name": section.category,
@@ -70,31 +70,24 @@ const jsonLd = {
   }
 };
 
-const renderMenuColumn = (sections) => sections.map(section => `
-    <section class="mb-14">
-      <div class="mb-8 flex justify-center">
-        <h3 class="inline-block relative px-6 py-2 md:px-8 md:py-3">
-          <svg class="absolute inset-0 w-full h-full text-[#d91f26]" preserveAspectRatio="none" viewBox="0 0 100 100" fill="currentColor">
-            <path d="M2,15 Q10,0 50,5 T98,12 Q100,50 95,85 Q85,100 50,95 T2,85 Z" />
-          </svg>
-          <span class="relative z-10 text-[#0a0a0a] text-3xl md:text-4xl font-display tracking-wider uppercase">${section.category}</span>
-        </h3>
-      </div>
-      ${section.note ? `<p class="text-zinc-400 text-center mb-8 max-w-2xl mx-auto italic font-medium text-sm md:text-base px-4">${section.note}</p>` : ''}
-      <ul class="space-y-6">
-        ${section.items.map(item => `
-          <li>
-            <div class="flex items-baseline mb-1">
-              <span class="font-display text-xl md:text-2xl tracking-wide uppercase">${item.name}</span>
-              <span class="flex-grow border-b-2 border-dotted border-zinc-700 mx-3 relative top-[-6px] min-w-[20px]"></span>
-              <span class="font-display text-xl md:text-2xl text-[#ff5259] shrink-0">$${item.price % 1 === 0 ? item.price : item.price.toFixed(2)}</span>
-            </div>
-            ${item.description ? `<p class="text-zinc-400 text-sm md:text-base pr-8 md:pr-16 leading-relaxed">${item.description}</p>` : ''}
-          </li>
-        `).join('')}
-      </ul>
-    </section>
-`).join('');
+const money = amount => `$${amount % 1 === 0 ? amount : amount.toFixed(2)}`;
+const renderOrderMenu = () => menu.map((section, sectionIndex) => `
+  <section class="menu-section" id="category-${sectionIndex}">
+    <div class="menu-section-heading">
+      <div><p class="menu-kicker">0${sectionIndex + 1} / The menu</p><h2>${section.category}</h2></div>
+      ${section.note ? `<p>${section.note}</p>` : ''}
+    </div>
+    <ul class="menu-items">
+      ${section.items.map((item, itemIndex) => `
+        <li class="menu-card">
+          <div class="menu-card-top">
+            <h3>${item.name}</h3><strong>${money(item.price)}</strong>
+          </div>
+          ${item.description ? `<p>${item.description}</p>` : '<p class="menu-card-spacer" aria-hidden="true"></p>'}
+          <button class="add-item" type="button" data-item="${sectionIndex}-${itemIndex}" aria-label="Add to order: ${item.name}">Add to order <span aria-hidden="true">＋</span></button>
+        </li>`).join('')}
+    </ul>
+  </section>`).join('');
 
 const html = `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
@@ -143,7 +136,7 @@ const html = `<!DOCTYPE html>
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <a href="#" aria-label="S&E BBQ home" class="font-display text-2xl md:text-3xl tracking-widest text-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">S&E BBQ</a>
       <nav class="hidden md:flex space-x-8 items-center" aria-label="Main Navigation">
-        <a href="#menu" class="font-display tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Menu</a>
+        <a href="/menu/" class="font-display tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Menu</a>
         <a href="#about" class="font-display tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">About</a>
         <a href="#location" class="font-display tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Location</a>
       </nav>
@@ -179,7 +172,7 @@ const html = `<!DOCTYPE html>
         </p>
         
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="#menu" class="w-full sm:w-auto bg-[#d91f26] text-white font-display text-xl tracking-widest uppercase px-8 py-4 hover:bg-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+          <a href="/menu/" class="w-full sm:w-auto bg-[#d91f26] text-white font-display text-xl tracking-widest uppercase px-8 py-4 hover:bg-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
             View Menu
           </a>
           ${hasRealPhone ? `
@@ -195,23 +188,11 @@ const html = `<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- Menu Section -->
-    <section id="menu" class="py-24 px-4 relative z-10 border-t border-zinc-900 bg-zinc-950/30">
-      <div class="container mx-auto">
-        <div class="text-center mb-16">
-          <h2 class="font-display text-5xl md:text-6xl tracking-widest uppercase mb-4">Our Menu</h2>
-          <div class="w-24 h-1 bg-[#d91f26] mx-auto"></div>
-        </div>
-        
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-16 gap-y-0 max-w-6xl mx-auto">
-          <div>
-            ${renderMenuColumn(menu.slice(0, 3))}
-          </div>
-          <div>
-            ${renderMenuColumn(menu.slice(3))}
-          </div>
-        </div>
-      </div>
+    <section id="menu" class="py-20 px-4 border-t border-zinc-900 text-center">
+      <p class="text-[#ff5259] uppercase tracking-[.22em] text-sm font-semibold">What we're serving</p>
+      <h2 class="font-display text-5xl md:text-7xl uppercase mt-3 mb-4">The good stuff</h2>
+      <p class="text-zinc-300 max-w-xl mx-auto mb-8">BBQ, fried whitefish, soul-food sides and more. Browse the full menu and build your order.</p>
+      <a href="/menu/" class="inline-block bg-[#d91f26] text-white font-display text-2xl tracking-wider uppercase px-10 py-4 hover:bg-white hover:text-black">See the menu &amp; order</a>
     </section>
 
     <!-- About Section -->
@@ -387,6 +368,70 @@ const html = `<!DOCTYPE html>
 // Keep the delivered HTML compact without changing text content or structured data.
 fs.writeFileSync(path.join(__dirname, 'index.html'), html.replace(/\n[ \t]+/g, ' ').replace(/>\s+</g, '><').trim(), 'utf-8');
 
+// A separate, statically rendered menu page. Ordering is a progressive enhancement:
+// the cards and prices remain available to search engines and no-script visitors.
+const homeHead = html.match(/<head>[\s\S]*?<\/head>/)[0];
+const menuHead = homeHead
+  .replace(`<title>${restaurant.name} | Tennessee BBQ</title>`, `<title>Menu &amp; Order | ${restaurant.name}</title>`)
+  .replace(`Smoked BBQ, fried whitefish, and scratch-made soul food in ${displayCity}. View our menu and order today.`, `Explore the full Slow & Easley BBQ & Soul Food menu, add your favorites to an order, then text us to confirm availability and pickup.`)
+  .replace(`<meta property="og:title" content="${restaurant.name}">`, `<meta property="og:title" content="Menu &amp; Order | ${restaurant.name}">`)
+  .replace(`<meta name="twitter:title" content="${restaurant.name}">`, `<meta name="twitter:title" content="Menu &amp; Order | ${restaurant.name}">`)
+  .replace(`<meta property="og:url" content="${siteUrl}">`, `<meta property="og:url" content="${siteUrl}/menu/">`)
+  .replace(`<link rel="canonical" href="${siteUrl}">`, `<link rel="canonical" href="${siteUrl}/menu/">`)
+  .replace('</head>', '  <script type="module" src="/src/menu-order.js"></script>\n</head>');
+const menuHeader = html.match(/<!-- Header \/ Nav -->[\s\S]*?<\/header>/)[0]
+  .replace('href="#" aria-label="S&E BBQ home"', 'href="/" aria-label="S&E BBQ home"')
+  .replace('href="#about"', 'href="/#about"')
+  .replace('href="#location"', 'href="/#location"');
+const menuFooter = html.match(/<!-- Footer -->[\s\S]*?<\/footer>/)[0];
+const menuHtml = `<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+${menuHead}
+<body class="font-sans antialiased bg-[#0a0a0a] text-white overflow-x-hidden pt-[60px] md:pt-[76px]">
+${menuHeader}
+<main id="main" class="order-page">
+  <div class="order-hero">
+    <p class="menu-kicker">Slow smoked · Made with soul</p>
+    <h1>The menu<span class="hero-period">.</span></h1>
+    <p>Pick your favorites. We’ll get the details ready for you to text us.</p>
+    <div class="order-hero-actions">
+      <a href="#category-0">Explore the menu ↓</a>
+      <button type="button" data-open-cart>View order <span data-cart-count>0</span></button>
+    </div>
+  </div>
+  <div class="order-layout">
+    <nav class="category-nav" aria-label="Menu categories">
+      ${menu.map((section, i) => `<a href="#category-${i}">${section.category}</a>`).join('')}
+    </nav>
+    ${renderOrderMenu()}
+  </div>
+  <div class="order-ending"><span>Good food takes time.</span><p>Call or text to confirm your order and pickup details.</p></div>
+  <noscript><p class="text-center p-6">To build an order, enable JavaScript, or call us at <a href="tel:${restaurant.phone}">${restaurant.displayPhone}</a>.</p></noscript>
+</main>
+${menuFooter}
+<button class="floating-cart" type="button" data-open-cart aria-label="View order"><span>View order</span><span data-cart-count>0</span></button>
+<dialog id="item-dialog" class="order-dialog" aria-labelledby="item-dialog-title">
+  <form id="item-form">
+    <div class="dialog-heading"><div><p class="menu-kicker">Make it yours</p><h2 id="item-dialog-title"></h2></div><button class="dialog-close" type="button" data-close aria-label="Close">×</button></div>
+    <div id="item-options"></div>
+    <button class="dialog-primary" type="submit">Add to order <span id="item-dialog-price"></span></button>
+  </form>
+</dialog>
+<dialog id="cart-dialog" class="order-dialog cart-dialog" aria-labelledby="cart-title">
+  <div class="dialog-heading"><div><p class="menu-kicker">Your favorites</p><h2 id="cart-title">Your order</h2></div><button class="dialog-close" type="button" data-close aria-label="Close">×</button></div>
+  <div id="cart-items"></div>
+  <div class="cart-summary"><span>Estimated subtotal</span><strong id="cart-subtotal">$0.00</strong></div>
+  <p class="cart-disclaimer">Tax, availability, and pickup details are confirmed by the restaurant. This is not a placed or paid order.</p>
+  <a id="text-order" class="dialog-primary" href="sms:${restaurant.phone}">Text this order</a>
+  <button id="copy-order" class="dialog-secondary" type="button">Copy order details</button>
+  <a class="call-order" href="tel:${restaurant.phone}">Or call ${restaurant.displayPhone}</a>
+  <p id="cart-status" role="status" aria-live="polite"></p>
+</dialog>
+</body>
+</html>`;
+fs.mkdirSync(path.join(__dirname, 'menu'), { recursive: true });
+fs.writeFileSync(path.join(__dirname, 'menu', 'index.html'), menuHtml.replace(/\n[ \t]+/g, ' ').replace(/>\s+</g, '><').trim(), 'utf-8');
+
 const publicDir = path.join(__dirname, 'public');
 if (!fs.existsSync(publicDir)) {
   fs.mkdirSync(publicDir);
@@ -400,6 +445,12 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>${siteUrl}/menu/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>`;
 
 fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemap, 'utf-8');
@@ -410,4 +461,4 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 
 fs.writeFileSync(path.join(publicDir, 'robots.txt'), robots, 'utf-8');
 
-console.log('✅ Generated index.html, sitemap.xml, and robots.txt based on menu-data.js configuration');
+console.log('✅ Generated home, menu, sitemap.xml, and robots.txt from menu-data.js');

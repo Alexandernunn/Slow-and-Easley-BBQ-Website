@@ -1,0 +1,167 @@
+import { menu, restaurant } from '../menu-data.js';
+
+const STORAGE_KEY = 'slow-easley-order-v1';
+const catalog = new Map(menu.flatMap((section, si) =>
+  section.items.map((item, ii) => [`${si}-${ii}`, { ...item, section: si }])));
+const sides = menu.find(section => section.category === 'Sides').items.map(item => item.name);
+const itemDialog = document.querySelector('#item-dialog');
+const itemForm = document.querySelector('#item-form');
+const cartDialog = document.querySelector('#cart-dialog');
+const cartItems = document.querySelector('#cart-items');
+const status = document.querySelector('#cart-status');
+let selectedId = null;
+let cart = loadCart();
+
+function loadCart() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    if (!Array.isArray(stored)) return [];
+    return stored.filter(row =>
+      row && catalog.has(row.id) &&
+      Number.isInteger(row.qty) && row.qty > 0 && row.qty <= 99 &&
+      Array.isArray(row.sides) && row.sides.length <= 2 &&
+      row.sides.every(side => sides.includes(side)) &&
+      typeof row.cheese === 'boolean' &&
+      (row.style === '' || (['Regular', 'Cajun'].includes(row.style) && /fish/i.test(catalog.get(row.id).name))) &&
+      (catalog.get(row.id).section === 0 ? row.sides.length === 2 : row.sides.length === 0) &&
+      (!row.cheese || /fish/i.test(catalog.get(row.id).name))
+    ).slice(0, 100);
+  } catch {
+    return [];
+  }
+}
+
+const money = amount => `$${amount.toFixed(2)}`;
+const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+})[char]);
+const unitPrice = row => catalog.get(row.id).price + (row.cheese ? 1 : 0);
+const rowKey = row => JSON.stringify([row.id, row.sides, row.cheese, row.style]);
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(cart)); } catch { /* unavailable storage */ }
+  document.querySelectorAll('[data-cart-count]').forEach(node => {
+    node.textContent = String(cart.reduce((sum, row) => sum + row.qty, 0));
+  });
+  renderCart();
+}
+
+function add(row) {
+  const existing = cart.find(entry => rowKey(entry) === rowKey(row));
+  if (existing) existing.qty = Math.min(99, existing.qty + 1);
+  else cart.push({ ...row, qty: 1 });
+  save();
+  itemDialog.close();
+  cartDialog.showModal();
+}
+
+function sideSelect(label, name) {
+  return `<label class="option-label">${label}<select name="${name}" required>
+    <option value="">Choose a side</option>
+    ${sides.map(side => `<option value="${escapeHtml(side)}">${escapeHtml(side)}</option>`).join('')}
+  </select></label>`;
+}
+
+function showOptions(id) {
+  const item = catalog.get(id);
+  if (!item) return;
+  if (item.section !== 0) {
+    add({ id, sides: [], cheese: false, style: '' });
+    return;
+  }
+  selectedId = id;
+  document.querySelector('#item-dialog-title').textContent = item.name;
+  document.querySelector('#item-dialog-price').textContent = money(item.price);
+  document.querySelector('#item-options').innerHTML = `
+    <p class="option-intro">Your entrée comes with two sides. Choose each one below.</p>
+    ${sideSelect('First included side', 'side1')}
+    ${sideSelect('Second included side', 'side2')}
+    ${/fish/i.test(item.name) ? '<label class="cheese-option"><input type="checkbox" name="cheese"> Add cheese to fish (+$1.00)</label>' : ''}
+    ${/fish/i.test(item.name) ? '<label class="option-label">Fish style<select name="style"><option value="Regular">Regular</option><option value="Cajun">Cajun</option></select></label>' : ''}
+  `;
+  itemForm.reset();
+  itemDialog.showModal();
+}
+
+function renderCart() {
+  status.textContent = '';
+  const subtotal = cart.reduce((sum, row) => sum + unitPrice(row) * row.qty, 0);
+  cartItems.innerHTML = cart.length ? cart.map((row, index) => {
+    const item = catalog.get(row.id);
+    return `<div class="cart-row">
+      <div class="cart-row-main"><strong>${escapeHtml(item.name)}</strong><span>${money(unitPrice(row) * row.qty)}</span></div>
+      ${row.sides.length ? `<p>With ${row.sides.map(escapeHtml).join(' &amp; ')}</p>` : ''}
+      ${row.style ? `<p>${escapeHtml(row.style)} style</p>` : ''}
+      ${row.cheese ? '<p>With cheese</p>' : ''}
+      <div class="quantity-controls">
+        <button type="button" data-qty="${index}" data-change="-1" aria-label="Remove one ${escapeHtml(item.name)}">−</button>
+        <span aria-label="Quantity ${row.qty}">${row.qty}</span>
+        <button type="button" data-qty="${index}" data-change="1" aria-label="Add one ${escapeHtml(item.name)}">+</button>
+        <button class="remove-row" type="button" data-remove="${index}">Remove</button>
+      </div>
+    </div>`;
+  }).join('') : '<p class="empty-cart">Your order is empty. Add anything from the menu to get started.</p>';
+  document.querySelector('#cart-subtotal').textContent = money(subtotal);
+  const message = `Hi Slow & Easley! I'd like to ask about this order:\n\n${cart.map(row => {
+    const item = catalog.get(row.id);
+    return `${row.qty} × ${item.name}${row.style ? ` (${row.style})` : ''}${row.sides.length ? ` (sides: ${row.sides.join(', ')})` : ''}${row.cheese ? ' (+ cheese)' : ''} — ${money(unitPrice(row) * row.qty)}`;
+  }).join('\n')}\n\nEstimated subtotal: ${money(subtotal)} before tax. Please confirm availability, total, and pickup details.`;
+  const textLink = document.querySelector('#text-order');
+  textLink.href = `sms:${restaurant.phone}?body=${encodeURIComponent(message)}`;
+  textLink.dataset.message = message;
+  textLink.setAttribute('aria-disabled', String(cart.length === 0));
+  document.querySelector('#copy-order').disabled = cart.length === 0;
+}
+
+document.addEventListener('click', event => {
+  const addButton = event.target.closest('[data-item]');
+  if (addButton) showOptions(addButton.dataset.item);
+  if (event.target.closest('[data-open-cart]')) cartDialog.showModal();
+  const close = event.target.closest('[data-close]');
+  if (close) close.closest('dialog').close();
+  const qtyButton = event.target.closest('[data-qty]');
+  if (qtyButton) {
+    const index = Number(qtyButton.dataset.qty);
+    if (cart[index]) {
+      cart[index].qty += Number(qtyButton.dataset.change);
+      if (cart[index].qty <= 0) cart.splice(index, 1);
+      save();
+    }
+  }
+  const remove = event.target.closest('[data-remove]');
+  if (remove) { cart.splice(Number(remove.dataset.remove), 1); save(); }
+});
+
+itemForm.addEventListener('submit', event => {
+  event.preventDefault();
+  if (!selectedId || !catalog.has(selectedId)) return;
+  const form = new FormData(itemForm);
+  const chosenSides = [form.get('side1'), form.get('side2')];
+  if (!chosenSides.every(side => sides.includes(side))) return;
+  add({ id: selectedId, sides: chosenSides, cheese: form.has('cheese'), style: String(form.get('style') || '') });
+});
+
+document.querySelector('#item-options').addEventListener('change', event => {
+  if (event.target.name === 'cheese') {
+    document.querySelector('#item-dialog-price').textContent =
+      money(catalog.get(selectedId).price + (event.target.checked ? 1 : 0));
+  }
+});
+
+document.querySelector('#copy-order').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(document.querySelector('#text-order').dataset.message);
+    status.textContent = 'Order details copied. Text or call us to confirm.';
+  } catch {
+    status.textContent = 'Could not copy automatically. Please use the text or call option.';
+  }
+});
+
+document.querySelector('#text-order').addEventListener('click', event => {
+  if (!cart.length) event.preventDefault();
+});
+
+for (const dialog of [itemDialog, cartDialog]) {
+  dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+}
+save();

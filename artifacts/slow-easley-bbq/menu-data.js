@@ -1,7 +1,7 @@
 // Centralized Site Configuration
 export const siteConfig = {
   // IMPORTANT: Replace this with your actual live domain once launched (e.g., https://slowandeasley.com)
-  canonicalUrl: "https://example.com"
+  canonicalUrl: "https://slowandeasleybbq.com"
 };
 
 export const restaurant = {
@@ -15,8 +15,8 @@ export const restaurant = {
     postalCode: "[ZIP]",
     country: "US"
   },
-  phone: "+1-555-019-8273",
-  displayPhone: "(555) 019-8273 [PLACEHOLDER]",
+  phone: "+16159880697",
+  displayPhone: "(615) 988-0697",
   hours: "Mo-Su 11:00-20:00 [PLACEHOLDER]",
   // Add actual schedules here when hours are confirmed; do not publish invented opening hours.
   openingHours: [],
@@ -25,8 +25,8 @@ export const restaurant = {
     longitude: null
   },
   social: {
-    facebook: "https://facebook.com/placeholder",
-    instagram: "https://instagram.com/placeholder"
+    facebook: "https://www.facebook.com/profile.php?id=100091425579125",
+    instagram: "https://www.instagram.com/slow_n_easleybbq"
   }
 };
 
