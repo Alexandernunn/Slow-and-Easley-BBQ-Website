@@ -1,0 +1,33 @@
+.bbq-preview.refined .category-nav {
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 7px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 10px 14px;
+  border-bottom-color: #392622;
+}
+.bbq-preview.refined .category-nav::-webkit-scrollbar { display: none; }
+.bbq-preview.refined .category-nav a {
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 8px 15px;
+  border-radius: 24px;
+  white-space: nowrap;
+  background: #211b19;
+  border-color: #553b36;
+}
+.bbq-preview.refined .category-nav a[aria-current="location"] {
+  background: #d91f26;
+  border-color: #d91f26;
+}
+@media (max-width: 680px) {
+  .bbq-preview.refined .category-nav {
+    width: calc(100% + 2.5rem);
+    margin-inline: -1.25rem;
+    padding-inline: 20px;
+    scroll-padding-inline: 20px;
+  }
+}

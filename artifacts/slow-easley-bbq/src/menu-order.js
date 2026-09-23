@@ -11,6 +11,12 @@ const checkoutDialog = document.querySelector('#checkout-dialog');
 const cartItems = document.querySelector('#cart-items');
 let selectedId = null;
 let cart = loadCart();
+const categoryNav = document.querySelector('.category-nav');
+const categoryLinks = [...categoryNav.querySelectorAll('a')];
+const categoryHeadings = categoryLinks.map(link =>
+  document.getElementById(link.hash.slice(1)).querySelector('.menu-section-heading'));
+let ignoreScrollUntil = 0;
+let scrollFrame = 0;
 
 document.querySelectorAll('.category-nav a, .order-hero-actions a[href^="#"]').forEach(link => {
   link.addEventListener('click', event => {
@@ -25,12 +31,44 @@ document.querySelectorAll('.category-nav a, .order-hero-actions a[href^="#"]').f
       top: Math.max(0, window.scrollY + heading.getBoundingClientRect().top - headerHeight - navHeight - 16),
       behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
     });
-    document.querySelectorAll('.category-nav a').forEach(categoryLink => {
-      if (categoryLink.getAttribute('href') === link.getAttribute('href')) categoryLink.setAttribute('aria-current', 'location');
-      else categoryLink.removeAttribute('aria-current');
-    });
+    setActiveCategory(categoryLinks.findIndex(categoryLink => categoryLink.hash === link.hash));
+    ignoreScrollUntil = performance.now() + 850;
   });
 });
+
+function setActiveCategory(index) {
+  if (index < 0) return;
+  categoryLinks.forEach((link, i) => {
+    if (i === index) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  });
+  const link = categoryLinks[index];
+  const navRect = categoryNav.getBoundingClientRect();
+  const left = categoryNav.scrollLeft + link.getBoundingClientRect().left - navRect.left
+    - (navRect.width - link.getBoundingClientRect().width) / 2;
+  categoryNav.scrollTo({ left, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+}
+
+function syncActiveCategory() {
+  if (performance.now() < ignoreScrollUntil) return;
+  const headerHeight = document.querySelector('header').getBoundingClientRect().height;
+  const threshold = headerHeight + categoryNav.getBoundingClientRect().height + 28;
+  let index = 0;
+  categoryHeadings.forEach((heading, i) => {
+    if (heading.getBoundingClientRect().top <= threshold) index = i;
+  });
+  if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) index = categoryLinks.length - 1;
+  if (categoryLinks[index].getAttribute('aria-current') !== 'location') setActiveCategory(index);
+}
+
+window.addEventListener('scroll', () => {
+  if (scrollFrame) return;
+  scrollFrame = requestAnimationFrame(() => {
+    scrollFrame = 0;
+    syncActiveCategory();
+  });
+}, { passive: true });
+window.addEventListener('load', syncActiveCategory);
 
 function loadCart() {
   try {
