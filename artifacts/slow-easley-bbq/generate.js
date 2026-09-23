@@ -136,10 +136,9 @@ const html = `<!DOCTYPE html>
   <header class="fixed top-0 w-full z-50 bg-[#0a0a0a]/95 backdrop-blur-md border-b border-zinc-900">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
       <a href="#" aria-label="S&E BBQ home" class="font-display text-2xl md:text-3xl tracking-widest text-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">S&E BBQ</a>
-      <nav class="hidden md:flex space-x-8 items-center" aria-label="Main Navigation">
-        <a href="/menu/" class="font-display tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Menu</a>
-        <a href="#about" class="font-display tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">About</a>
-        <a href="#location" class="font-display tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Location</a>
+      <nav class="flex gap-3 md:gap-8 items-center" aria-label="Main Navigation">
+        <a href="/menu/" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Menu</a>
+        <a href="/about/" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">About / Location</a>
       </nav>
       ${hasRealPhone ? `
       <a href="tel:${restaurant.phone}" aria-label="Call to Order" class="hidden md:inline-block bg-[#d91f26] text-white font-display tracking-widest uppercase px-6 py-2 hover:bg-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
@@ -194,6 +193,12 @@ const html = `<!DOCTYPE html>
       <h2 class="font-display text-5xl md:text-7xl uppercase mt-3 mb-4">The good stuff</h2>
       <p class="text-zinc-300 max-w-xl mx-auto mb-8">BBQ, fried whitefish, soul-food sides and more. Browse the full menu and build your order.</p>
       <a href="/menu/" class="inline-block bg-[#d91f26] text-white font-display text-2xl tracking-wider uppercase px-10 py-4 hover:bg-white hover:text-black">See the menu &amp; order</a>
+    </section>
+    <section class="py-20 px-4 border-t border-zinc-900 text-center">
+      <p class="text-[#ff5259] uppercase tracking-[.22em] text-sm font-semibold">Our story · Our home</p>
+      <h2 class="font-display text-5xl md:text-7xl uppercase mt-3 mb-4">About &amp; Location</h2>
+      <p class="text-zinc-300 max-w-xl mx-auto mb-8">Find out what makes Slow &amp; Easley special, then come see us at ${restaurant.address.street} in ${displayCity}.</p>
+      <a href="/about/" class="inline-block border-2 border-[#d91f26] text-white font-display text-2xl tracking-wider uppercase px-10 py-4 hover:bg-[#d91f26]">Our story &amp; directions</a>
     </section>
 
     <!-- About Section -->
@@ -370,8 +375,13 @@ const html = `<!DOCTYPE html>
 </body>
 </html>`;
 
-// Keep the delivered HTML compact without changing text content or structured data.
-fs.writeFileSync(path.join(__dirname, 'index.html'), html.replace(/\n[ \t]+/g, ' ').replace(/>\s+</g, '><').trim(), 'utf-8');
+const compact = page => page.replace(/\n[ \t]+/g, ' ').replace(/>\s+</g, '><').trim();
+const aboutSection = html.match(/    <!-- About Section -->[\s\S]*?    <\/section>/)?.[0];
+const locationSection = html.match(/    <!-- Hours & Location -->[\s\S]*?    <\/section>/)?.[0];
+if (!aboutSection || !locationSection) throw new Error('About and location sections must exist for the combined page');
+
+// Keep the landing page focused while preserving the full story and location on /about/.
+fs.writeFileSync(path.join(__dirname, 'index.html'), compact(html.replace(aboutSection, '').replace(locationSection, '')), 'utf-8');
 
 // A separate, statically rendered menu page. Ordering is a progressive enhancement:
 // the cards and prices remain available to search engines and no-script visitors.
@@ -386,9 +396,42 @@ const menuHead = homeHead
   .replace('</head>', '  <script type="module" src="/src/menu-order.js"></script>\n</head>');
 const menuHeader = html.match(/<!-- Header \/ Nav -->[\s\S]*?<\/header>/)[0]
   .replace('href="#" aria-label="S&E BBQ home"', 'href="/" aria-label="S&E BBQ home"')
-  .replace('href="#about"', 'href="/#about"')
-  .replace('href="#location"', 'href="/#location"');
+  .replace('href="/menu/" class=', 'href="/menu/" aria-current="page" class=');
 const menuFooter = html.match(/<!-- Footer -->[\s\S]*?<\/footer>/)[0];
+const mobileCallButton = html.match(/<!-- Sticky Mobile Call Button -->[\s\S]*?(?=\s*<\/body>)/)[0];
+const aboutDescription = `Learn about Slow & Easley BBQ & Soul Food and find our permanent location at ${restaurant.address.street}, ${displayCity}, ${restaurant.address.region} ${restaurant.address.postalCode}.`;
+const aboutHead = homeHead
+  .replace(`<title>${restaurant.name} | Tennessee BBQ</title>`, `<title>About &amp; Location | ${restaurant.name}</title>`)
+  .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${aboutDescription}">`)
+  .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="About &amp; Location | ${restaurant.name}">`)
+  .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${aboutDescription}">`)
+  .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="About &amp; Location | ${restaurant.name}">`)
+  .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${aboutDescription}">`)
+  .replace(`<meta property="og:url" content="${siteUrl}">`, `<meta property="og:url" content="${siteUrl}/about/">`)
+  .replace(`<link rel="canonical" href="${siteUrl}">`, `<link rel="canonical" href="${siteUrl}/about/">`);
+const aboutHeader = menuHeader
+  .replace('href="/menu/" aria-current="page" class=', 'href="/menu/" class=')
+  .replace('href="/about/" class=', 'href="/about/" aria-current="page" class=');
+const aboutHtml = `<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+${aboutHead}
+<body class="font-sans antialiased bg-[#0a0a0a] text-white overflow-x-hidden pt-[60px] md:pt-[76px]">
+${aboutHeader}
+<main id="main">
+  <section class="px-4 py-16 md:py-24 text-center bg-[radial-gradient(ellipse_at_top,#341311_0%,#0a0a0a_67%)]">
+    <p class="text-[#ff8587] text-sm uppercase tracking-[.22em] font-semibold">Slow smoked · Made with soul</p>
+    <h1 class="font-display text-6xl md:text-8xl uppercase leading-none mt-4">About <span class="text-[#d91f26]">&amp;</span><br/>Location</h1>
+    <p class="text-zinc-300 max-w-xl mx-auto mt-6 text-lg">Our story, hours, and where to find us in ${displayCity}.</p>
+  </section>
+${aboutSection}
+${locationSection}
+</main>
+${menuFooter}
+${mobileCallButton}
+</body>
+</html>`;
+fs.mkdirSync(path.join(__dirname, 'about'), { recursive: true });
+fs.writeFileSync(path.join(__dirname, 'about', 'index.html'), compact(aboutHtml), 'utf-8');
 const menuHtml = `<!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 ${menuHead}
@@ -451,7 +494,7 @@ ${menuFooter}
 </body>
 </html>`;
 fs.mkdirSync(path.join(__dirname, 'menu'), { recursive: true });
-fs.writeFileSync(path.join(__dirname, 'menu', 'index.html'), menuHtml.replace(/\n[ \t]+/g, ' ').replace(/>\s+</g, '><').trim(), 'utf-8');
+fs.writeFileSync(path.join(__dirname, 'menu', 'index.html'), compact(menuHtml), 'utf-8');
 
 const publicDir = path.join(__dirname, 'public');
 if (!fs.existsSync(publicDir)) {
@@ -472,6 +515,12 @@ const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+  <url>
+    <loc>${siteUrl}/about/</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>`;
 
 fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), sitemap, 'utf-8');
@@ -482,4 +531,4 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 
 fs.writeFileSync(path.join(publicDir, 'robots.txt'), robots, 'utf-8');
 
-console.log('✅ Generated home, menu, sitemap.xml, and robots.txt from menu-data.js');
+console.log('✅ Generated home, menu, about/location, sitemap.xml, and robots.txt from menu-data.js');

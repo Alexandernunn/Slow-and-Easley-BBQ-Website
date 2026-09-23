@@ -5,11 +5,12 @@ import { defineConfig } from 'vite';
 
 import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 
-const redirectMenu = (server: { middlewares: { use: (handler: (req: { url?: string }, res: { statusCode: number; setHeader: (key: string, value: string) => void; end: () => void }, next: () => void) => void) => void } }) => {
+const redirectPages = (server: { middlewares: { use: (handler: (req: { url?: string }, res: { statusCode: number; setHeader: (key: string, value: string) => void; end: () => void }, next: () => void) => void) => void } }) => {
   server.middlewares.use((req, res, next) => {
-    if (req.url?.split('?')[0] !== '/menu') return next();
+    const pathname = req.url?.split('?')[0];
+    if (pathname !== '/menu' && pathname !== '/about') return next();
     res.statusCode = 308;
-    res.setHeader('Location', `/menu/${req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''}`);
+    res.setHeader('Location', `${pathname}/${req.url?.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''}`);
     res.end();
   });
 };
@@ -40,9 +41,9 @@ export default defineConfig({
   base: basePath,
   plugins: [
     {
-      name: 'menu-trailing-slash',
-      configureServer: redirectMenu,
-      configurePreviewServer: redirectMenu,
+      name: 'page-trailing-slash',
+      configureServer: redirectPages,
+      configurePreviewServer: redirectPages,
     },
     react(),
     tailwindcss(),
@@ -81,6 +82,7 @@ export default defineConfig({
       input: {
         home: path.resolve(import.meta.dirname, 'index.html'),
         menu: path.resolve(import.meta.dirname, 'menu/index.html'),
+        about: path.resolve(import.meta.dirname, 'about/index.html'),
       },
     },
   },

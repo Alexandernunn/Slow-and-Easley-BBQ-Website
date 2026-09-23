@@ -1,6 +1,6 @@
 # Slow & Easley BBQ & Soul Food
 
-The public homepage and `/menu/` are generated as static HTML from `menu-data.js`. Edit that file to update menu prices, descriptions, or business information. Run `pnpm --filter @workspace/slow-easley-bbq run dev` in the managed website workflow to regenerate the pages; the production build regenerates them automatically. The order cart on `/menu/` runs in the browser and remembers selections locally. It does not submit an order to a server, take payment, or confirm availability.
+The public homepage, `/menu/`, and combined `/about/` location page are generated as static HTML from `menu-data.js`. Edit that file to update menu prices, descriptions, or business information. Run `pnpm --filter @workspace/slow-easley-bbq run dev` in the managed website workflow to regenerate the pages; the production build regenerates them automatically. The order cart on `/menu/` runs in the browser and remembers selections locally. It does not submit an order to a server, take payment, or confirm availability.
 
 ## Before publishing
 
