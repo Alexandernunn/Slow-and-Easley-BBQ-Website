@@ -12,6 +12,19 @@ const status = document.querySelector('#cart-status');
 let selectedId = null;
 let cart = loadCart();
 
+document.querySelectorAll('.category-nav a, .order-hero-actions a[href^="#"]').forEach(link => {
+  link.addEventListener('click', event => {
+    const target = document.getElementById(link.getAttribute('href').slice(1));
+    if (!target) return;
+    event.preventDefault();
+    history.pushState(null, '', link.getAttribute('href'));
+    target.scrollIntoView({
+      behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start'
+    });
+  });
+});
+
 function loadCart() {
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
