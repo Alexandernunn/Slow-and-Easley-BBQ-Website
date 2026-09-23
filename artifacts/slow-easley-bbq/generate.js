@@ -138,7 +138,7 @@ const html = `<!DOCTYPE html>
       <a href="#" aria-label="S&E BBQ home" class="font-display text-2xl md:text-3xl tracking-widest text-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">S&E BBQ</a>
       <nav class="flex gap-3 md:gap-8 items-center" aria-label="Main Navigation">
         <a href="/menu/" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Menu</a>
-        <a href="/about/" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">About / Location</a>
+        <a href="/about/" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Details</a>
       </nav>
       ${hasRealPhone ? `
       <a href="tel:${restaurant.phone}" aria-label="Call to Order" class="hidden md:inline-block bg-[#d91f26] text-white font-display tracking-widest uppercase px-6 py-2 hover:bg-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
@@ -188,17 +188,11 @@ const html = `<!DOCTYPE html>
       </div>
     </section>
 
-    <section id="menu" class="py-20 px-4 border-t border-zinc-900 text-center">
-      <p class="text-[#ff5259] uppercase tracking-[.22em] text-sm font-semibold">What we're serving</p>
-      <h2 class="font-display text-5xl md:text-7xl uppercase mt-3 mb-4">The good stuff</h2>
-      <p class="text-zinc-300 max-w-xl mx-auto mb-8">BBQ, fried whitefish, soul-food sides and more. Browse the full menu and build your order.</p>
-      <a href="/menu/" class="inline-block bg-[#d91f26] text-white font-display text-2xl tracking-wider uppercase px-10 py-4 hover:bg-white hover:text-black">See the menu &amp; order</a>
-    </section>
     <section class="py-20 px-4 border-t border-zinc-900 text-center">
       <p class="text-[#ff5259] uppercase tracking-[.22em] text-sm font-semibold">Our story · Our home</p>
-      <h2 class="font-display text-5xl md:text-7xl uppercase mt-3 mb-4">About &amp; Location</h2>
+      <h2 class="font-display text-5xl md:text-7xl uppercase mt-3 mb-4">Details</h2>
       <p class="text-zinc-300 max-w-xl mx-auto mb-8">Find out what makes Slow &amp; Easley special, then come see us at ${restaurant.address.street} in ${displayCity}.</p>
-      <a href="/about/" class="inline-block border-2 border-[#d91f26] text-white font-display text-2xl tracking-wider uppercase px-10 py-4 hover:bg-[#d91f26]">Our story &amp; directions</a>
+      <a href="/about/" class="inline-block border-2 border-[#d91f26] text-white font-display text-2xl tracking-wider uppercase px-10 py-4 hover:bg-[#d91f26]">See details</a>
     </section>
 
     <!-- About Section -->
@@ -401,11 +395,11 @@ const menuFooter = html.match(/<!-- Footer -->[\s\S]*?<\/footer>/)[0];
 const mobileCallButton = html.match(/<!-- Sticky Mobile Call Button -->[\s\S]*?(?=\s*<\/body>)/)[0];
 const aboutDescription = `Learn about Slow & Easley BBQ & Soul Food and find our permanent location at ${restaurant.address.street}, ${displayCity}, ${restaurant.address.region} ${restaurant.address.postalCode}.`;
 const aboutHead = homeHead
-  .replace(`<title>${restaurant.name} | Tennessee BBQ</title>`, `<title>About &amp; Location | ${restaurant.name}</title>`)
+  .replace(`<title>${restaurant.name} | Tennessee BBQ</title>`, `<title>Details | ${restaurant.name}</title>`)
   .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="${aboutDescription}">`)
-  .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="About &amp; Location | ${restaurant.name}">`)
+  .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="Details | ${restaurant.name}">`)
   .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${aboutDescription}">`)
-  .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="About &amp; Location | ${restaurant.name}">`)
+  .replace(/<meta name="twitter:title" content="[^"]*">/, `<meta name="twitter:title" content="Details | ${restaurant.name}">`)
   .replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${aboutDescription}">`)
   .replace(`<meta property="og:url" content="${siteUrl}">`, `<meta property="og:url" content="${siteUrl}/about/">`)
   .replace(`<link rel="canonical" href="${siteUrl}">`, `<link rel="canonical" href="${siteUrl}/about/">`);
@@ -420,7 +414,7 @@ ${aboutHeader}
 <main id="main">
   <section class="px-4 py-16 md:py-24 text-center bg-[radial-gradient(ellipse_at_top,#341311_0%,#0a0a0a_67%)]">
     <p class="text-[#ff8587] text-sm uppercase tracking-[.22em] font-semibold">Slow smoked · Made with soul</p>
-    <h1 class="font-display text-6xl md:text-8xl uppercase leading-none mt-4">About <span class="text-[#d91f26]">&amp;</span><br/>Location</h1>
+    <h1 class="font-display text-6xl md:text-8xl uppercase leading-none mt-4">Details<span class="text-[#d91f26]">.</span></h1>
     <p class="text-zinc-300 max-w-xl mx-auto mt-6 text-lg">Our story, hours, and where to find us in ${displayCity}.</p>
   </section>
 ${aboutSection}
