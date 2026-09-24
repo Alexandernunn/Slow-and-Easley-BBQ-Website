@@ -2,11 +2,19 @@
 
 The public homepage, `/menu/`, and combined `/about/` location page are generated as static HTML from `menu-data.js`. Edit that file to update menu prices, descriptions, or business information. Run `pnpm --filter @workspace/slow-easley-bbq run dev` in the managed website workflow to regenerate the pages; the production build regenerates them automatically. The order cart on `/menu/` runs in the browser and remembers selections locally. It does not submit an order to a server, take payment, or confirm availability.
 
+## Deploy to Netlify
+
+Connect this repository to a new Netlify site. Leave the **base directory** at the repository root; the root `netlify.toml` supplies the build command and publishes `artifacts/slow-easley-bbq/dist/public`. Netlify installs the pinned pnpm version from the root `package.json` and uses Node 22. The build generates the three static pages, fonts, images, robots file, and sitemap; it does not need the separate API server, a database, or secrets.
+
+Netlify supplies its primary site `URL` at build time. The generated canonical links, social image URLs, and sitemap use that address (including a custom domain once configured). To override it, set a build environment variable named `SITE_URL` to an HTTPS origin, such as `https://example.com`, and trigger a new deploy. If you connect a custom domain after the first deploy, redeploy so these URLs point to it.
+
+For a manual upload instead of a Git-connected deploy, run `PORT=25338 BASE_PATH=/ pnpm --filter @workspace/slow-easley-bbq run build` from the repository root and upload the **contents** of `artifacts/slow-easley-bbq/dist/public`. The menu keeps orders in each visitor's browser and asks them to call; it does not accept online payments.
+
 ## Before publishing
 
 Confirm the following before publishing:
 
-- `siteConfig.canonicalUrl`: currently `https://slowandeasleybbq.com`, sourced from the public site the owner supplied. Ensure this deployment is actually connected to that domain before publishing, or update the canonical URL to the correct live address.
+- `siteConfig.canonicalUrl`: currently `https://slowandeasleybbq.com`, sourced from the public site the owner supplied. This remains the fallback outside Netlify; verify the deployed canonical domain or provide `SITE_URL` when building elsewhere.
 - `restaurant.address`: 3612 Gallatin Pike, Nashville, TN 37216. Street, city, and hours came from the supplied location announcement; the ZIP and exact-address coordinates were cross-checked with address listings and OpenStreetMap geocoding.
 - `restaurant.phone` and `displayPhone`: currently `(615) 988-0697`, sourced from the public site. Confirm it is the right number for food orders before launch; it is used by the call links.
 - `restaurant.hours` and `openingHours`: Wednesday–Sunday, 11:00 AM–7:30 PM, based on the supplied announcement. Monday and Tuesday are not listed as open.

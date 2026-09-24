@@ -16,7 +16,12 @@ const hasRealSocialFacebook = !restaurant.social.facebook.includes('placeholder'
 const hasRealSocialInstagram = !restaurant.social.instagram.includes('placeholder');
 const isRealCity = !restaurant.address.city.includes('[CITY]');
 const displayCity = isRealCity ? restaurant.address.city : '[CITY]';
-const siteUrl = siteConfig.canonicalUrl.replace(/\/$/, ''); // ensure no trailing slash
+// Netlify provides URL as the site's primary address (custom domain, if configured).
+// SITE_URL can override it for another host or a deliberate canonical domain.
+const siteUrl = (process.env.SITE_URL || process.env.URL || siteConfig.canonicalUrl).replace(/\/$/, '');
+if (!/^https:\/\/[^/]+$/.test(siteUrl)) {
+  throw new Error('SITE_URL (or Netlify URL) must be an HTTPS site origin without a path.');
+}
 const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${restaurant.address.street}, ${restaurant.address.city}, ${restaurant.address.region} ${restaurant.address.postalCode}`)}`;
 
 const jsonLd = {

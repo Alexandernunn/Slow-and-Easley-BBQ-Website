@@ -1,0 +1,6 @@
+[build]
+  command = "PORT=25338 BASE_PATH=/ pnpm --filter @workspace/slow-easley-bbq run build"
+  publish = "artifacts/slow-easley-bbq/dist/public"
+
+[build.environment]
+  NODE_VERSION = "22"
