@@ -150,6 +150,7 @@ const html = `<!DOCTYPE html>
       <nav class="flex gap-3 md:gap-8 items-center" aria-label="Main Navigation">
         <a href="/menu/" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Menu</a>
         <a href="/about/" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Details</a>
+        <a href="${siteConfig.deliveryUrl}" target="_blank" rel="noopener noreferrer" aria-label="Order delivery (opens in a new tab)" class="font-display text-sm md:text-base tracking-widest uppercase hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">Delivery</a>
       </nav>
       ${hasRealPhone ? `
       <a href="tel:${restaurant.phone}" aria-label="Call to Order" class="hidden md:inline-block bg-[#d91f26] text-white font-display tracking-widest uppercase px-6 py-2 hover:bg-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
@@ -185,6 +186,9 @@ const html = `<!DOCTYPE html>
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <a href="/menu/" class="w-full sm:w-auto bg-[#d91f26] text-white font-display text-xl tracking-widest uppercase px-8 py-4 hover:bg-white hover:text-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
             View Menu
+          </a>
+          <a href="${siteConfig.deliveryUrl}" target="_blank" rel="noopener noreferrer" class="w-full sm:w-auto border-2 border-[#d91f26] text-white font-display text-xl tracking-widest uppercase px-8 py-4 hover:bg-[#d91f26] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]" aria-label="Order delivery (opens in a new tab)">
+            Order Delivery ↗
           </a>
           ${hasRealPhone ? `
           <a href="tel:${restaurant.phone}" class="w-full sm:w-auto border-2 border-white text-white font-display text-xl tracking-widest uppercase px-8 py-4 hover:bg-white hover:text-[#0a0a0a] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">
@@ -449,6 +453,7 @@ ${menuHeader}
     <p>Pick your favorites and review your order before calling us.</p>
     <div class="order-hero-actions">
       <a href="#category-0">Explore the menu ↓</a>
+      <a class="delivery-link" href="${siteConfig.deliveryUrl}" target="_blank" rel="noopener noreferrer" aria-label="Order delivery (opens in a new tab)">Order delivery ↗</a>
       <button type="button" data-open-cart>View order <span data-cart-count>0</span></button>
     </div>
   </div>
@@ -477,6 +482,8 @@ ${menuFooter}
   <p class="cart-disclaimer">Tax, availability, and pickup details are confirmed by the restaurant. This is not a placed or paid order.</p>
   <button id="preview-checkout" class="dialog-secondary" type="button" disabled>Preview Square checkout · demo</button>
   <a class="call-order" href="tel:${restaurant.phone}">Call to order: ${restaurant.displayPhone}</a>
+  <a class="delivery-order-link" href="${siteConfig.deliveryUrl}" target="_blank" rel="noopener noreferrer">Order delivery ↗</a>
+  <p class="cart-disclaimer">Delivery opens a separate ordering site. Items in this cart will not transfer.</p>
 </dialog>
 <dialog id="checkout-dialog" class="order-dialog checkout-dialog" aria-labelledby="checkout-title">
   <div class="dialog-heading"><div><p class="menu-kicker">Checkout preview</p><h2 id="checkout-title">Review your order</h2></div><button class="dialog-close" type="button" data-close aria-label="Close">×</button></div>

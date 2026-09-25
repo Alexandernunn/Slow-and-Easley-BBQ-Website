@@ -1,7 +1,8 @@
 // Centralized Site Configuration
 export const siteConfig = {
   // IMPORTANT: Replace this with your actual live domain once launched (e.g., https://slowandeasley.com)
-  canonicalUrl: "https://slowandeasleybbq.com"
+  canonicalUrl: "https://slowandeasleybbq.com",
+  deliveryUrl: "https://www.order.store/store/slow-%26-easley-bbq-and-soul-food/rNo7PujhRnGzEn2ovS9fJA"
 };
 
 export const restaurant = {

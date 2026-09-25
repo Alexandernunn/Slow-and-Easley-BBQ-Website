@@ -27,6 +27,8 @@ Once the actual domain and business details are in place, validate the published
 
 ## Ordering
 
+The **Order delivery** links open the separate delivery storefront configured in `siteConfig.deliveryUrl`. Delivery availability, hours, pricing, and checkout are handled there. Items in the website's cart do not transfer to that storefront.
+
 All priced items can be added from `/menu/`. Entrées require two included side choices; the applicable fish options support Cajun/regular and +$1 cheese. The order total is an estimate before tax. Customers must call and receive confirmation from the restaurant; no online checkout or payment is provided.
 
 The cart also has a **Square checkout preview**. It shows a review screen using the current cart lines and item selections; its payment action is disabled. No Square account is connected, and the preview does not collect card details, create an order, or take payment. When live checkout is added, send only the item identities, quantities, and choices to a server, recalculate prices and taxes there, then create a Square-hosted payment link server-side. Do not trust the browser's displayed subtotal as an authoritative charge.
