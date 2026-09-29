@@ -1,0 +1,43 @@
+Add online pickup ordering with Square payments to this site (Slow & Easley BBQ & Soul Food). It's a static site deployed on Netlify at https://slowandeasely.netlify.app with Home, /menu/, and /about/ pages. Keep the existing design, the red/black/white Tennessee BBQ theme, and the fast load speed. Don't break the current pages, SEO meta tags, or the "Call to Order" buttons; keep phone ordering as a fallback.
+
+ARCHITECTURE
+- The frontend stays static. All server-side Square logic goes in Netlify Functions (netlify/functions/). Do NOT add an Express server.
+- Use the latest official Square Node.js SDK (npm package "square") inside the functions. Check the current docs, since the client syntax changed in recent versions.
+- Add a netlify.toml configured for the functions if one doesn't exist.
+
+CREDENTIALS
+Read these from environment variables (Replit Secrets for development, Netlify environment variables in production). Never hardcode them or expose the secret ones to the browser:
+- SQUARE_APPLICATION_ID and SQUARE_LOCATION_ID (safe for frontend)
+- SQUARE_ACCESS_TOKEN (secret, functions only)
+- SQUARE_WEBHOOK_SIGNATURE_KEY (secret, functions only)
+- SQUARE_ENVIRONMENT ("sandbox" or "production")
+Create a function /.netlify/functions/square-config that returns only the Application ID, Location ID, and environment.
+
+MENU
+- Create a function get-menu that pulls items, variations, prices, and images from the Square Catalog API, so the restaurant manages its menu and prices in Square and the site stays in sync.
+- On /menu/, add "Add to Order" buttons to each item without changing the page layout. Keep the menu content crawlable for SEO.
+
+CART & CHECKOUT
+- Add a lightweight cart (slide-out panel or /order/ page) stored in localStorage, with quantities, item notes (e.g. "extra sauce"), and a running subtotal.
+- Build a /checkout/ page that collects customer name, phone, and email, plus a pickup time.
+- Only allow ordering during business hours: Wednesday–Sunday, 11:00 AM–7:30 PM Central. Outside those hours, show "Online ordering is closed. We open Wednesday at 11 AM" and disable checkout. Offer pickup time slots in 15-minute increments, starting at least 20 minutes from now.
+- Load the Square Web Payments SDK ONLY on /checkout/ so the other pages stay fast. Use the sandbox or production script URL based on SQUARE_ENVIRONMENT. Show the card form, plus Apple Pay, Google Pay, and Cash App Pay when available.
+- Disable the pay button while a payment is processing to prevent double charges.
+
+ORDER + PAYMENT FUNCTION (create-order)
+- Accept the cart line items (catalog object IDs + quantities + notes), the customer info, the pickup time, and the payment token.
+- Create a Square Order using catalog object IDs, so prices come from Square and never from the browser. Include a PICKUP fulfillment with the customer's name, phone, and pickup time, so the order shows up on the restaurant's Square POS / order manager.
+- Apply sales tax as configured in the Square account.
+- Then create the payment with the Payments API, linked to that order_id, with a unique idempotency key.
+- Return the order number and pickup time. On decline or error, return a friendly message and log the details server-side.
+
+CONFIRMATION
+- Show a confirmation page with the order number, the items, the total, the pickup time, and the address (3612 Gallatin Pike, Nashville, TN 37216), plus a "Call us" link to (615) 988-0697. Clear the cart after success.
+- Turn on Square's receipt email to the customer.
+
+WEBHOOK
+- Create a function square-webhook that verifies the signature using SQUARE_WEBHOOK_SIGNATURE_KEY and the exact notification URL, rejects invalid requests, and logs payment.updated, order.updated, and refund.created events.
+- Tell me the exact webhook URL to paste into the Square Developer Dashboard.
+
+TESTING & DOCS
+- Default to sandbox. Add a README section covering: required env vars, setting them in Netlify (Site settings → Environment variables), testing with Square sandbox test cards, running locally with `netlify dev`, and switching to production.
