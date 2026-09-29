@@ -124,7 +124,7 @@ const html = `<!DOCTYPE html>
   <meta name="twitter:image" content="${siteUrl}/og-image.png">
   
   <link rel="canonical" href="${siteUrl}">
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="256x256" href="/favicon.png">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="preload" href="/fonts/bebas-neue-latin.woff2" as="font" type="font/woff2" crossorigin>
   <style>html{background:#0a0a0a;color:#fff}body{margin:0;font-family:Barlow,system-ui,sans-serif}header{background:#0a0a0a}h1{font-family:"Bebas Neue",Impact,sans-serif}</style>
@@ -175,9 +175,9 @@ const html = `<!DOCTYPE html>
       </div>
 
       <div class="relative z-10 max-w-4xl mx-auto space-y-6">
-        <h1 class="font-display text-6xl md:text-8xl lg:text-9xl tracking-tight leading-none uppercase text-white drop-shadow-2xl">
-          Slow <span class="text-[#d91f26]">&amp;</span> Easley<br/>
-          <span class="text-4xl md:text-6xl lg:text-7xl block mt-2 text-zinc-300">${restaurant.tagline}</span>
+        <h1>
+          <span class="sr-only">${restaurant.name}</span>
+          <img src="/brand-logo.webp" alt="" width="1200" height="832" fetchpriority="high" class="block w-full max-w-[700px] lg:max-w-[760px] h-auto mx-auto" />
         </h1>
         <p class="text-xl md:text-2xl text-zinc-400 font-medium max-w-2xl mx-auto mt-6">
           Authentic Tennessee BBQ, crispy fried whitefish, and down-home soul food.
