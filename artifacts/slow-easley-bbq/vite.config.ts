@@ -8,7 +8,7 @@ import runtimeErrorOverlay from '@replit/vite-plugin-runtime-error-modal';
 const redirectPages = (server: { middlewares: { use: (handler: (req: { url?: string }, res: { statusCode: number; setHeader: (key: string, value: string) => void; end: () => void }, next: () => void) => void) => void } }) => {
   server.middlewares.use((req, res, next) => {
     const pathname = req.url?.split('?')[0];
-    if (pathname !== '/menu' && pathname !== '/about') return next();
+    if (!['/menu', '/about', '/checkout', '/confirmation'].includes(pathname || '')) return next();
     res.statusCode = 308;
     res.setHeader('Location', `${pathname}/${req.url?.includes('?') ? req.url.slice(req.url.indexOf('?')) : ''}`);
     res.end();
@@ -83,6 +83,8 @@ export default defineConfig({
         home: path.resolve(import.meta.dirname, 'index.html'),
         menu: path.resolve(import.meta.dirname, 'menu/index.html'),
         about: path.resolve(import.meta.dirname, 'about/index.html'),
+        checkout: path.resolve(import.meta.dirname, 'checkout/index.html'),
+        confirmation: path.resolve(import.meta.dirname, 'confirmation/index.html'),
       },
     },
   },

@@ -1,0 +1,233 @@
+/* Pickup checkout / confirmation — extends the established S&E type and colors. */
+.se-checkout-page {
+  --se-red: #d91f26;
+  --se-red-light: #ff8587;
+  --se-ink: #0a0a0a;
+  --se-panel: #191716;
+  --se-line: #49342f;
+  --se-muted: #d3c5ba;
+  min-height: 100dvh;
+  background: var(--se-ink);
+  color: #f8f3ee;
+  font-family: "Barlow", system-ui, sans-serif;
+  padding: 0 0 6rem;
+  overflow: clip;
+}
+
+.se-checkout-page *, .se-checkout-page *::before, .se-checkout-page *::after { box-sizing: border-box; }
+.se-checkout-page a { color: inherit; }
+.se-checkout-page a:focus-visible, .se-checkout-page button:focus-visible,
+.se-checkout-page input:focus-visible, .se-checkout-page select:focus-visible,
+.se-checkout-page textarea:focus-visible {
+  outline: 2px solid #ff8587;
+  outline-offset: 3px;
+}
+.se-checkout-page [hidden] { display: none !important; }
+.se-checkout-wrap { width: min(1160px, calc(100% - 2.5rem)); margin-inline: auto; }
+.se-checkout-back {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .85rem;
+  min-height: 5.25rem;
+  color: #cbbdb5;
+  font-size: .81rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.se-checkout-back a { text-decoration: none; color: #f8f3ee; }
+.se-checkout-back a:hover { color: var(--se-red-light); }
+.se-checkout-back a span { font-size: 1.25rem; margin-right: .35rem; vertical-align: -.06em; }
+.se-checkout-back-divider { height: 1rem; width: 1px; background: #75544b; }
+.se-checkout-intro {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 3rem;
+  padding: 3.5rem 0 3.1rem;
+  border-top: 1px solid var(--se-line);
+  border-bottom: 3px solid var(--se-red);
+}
+.se-checkout-kicker, .se-checkout-eyebrow {
+  margin: 0;
+  color: var(--se-red-light);
+  font-size: .76rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+.se-checkout-kicker span { color: #80645b; margin-inline: .45rem; }
+.se-checkout-intro h1, .se-confirmation-hero h1 {
+  margin: .8rem 0 0;
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: .015em;
+  font-size: clamp(4.3rem, 8.5vw, 8.3rem);
+  line-height: .82;
+}
+.se-checkout-intro h1 span { color: var(--se-red); }
+.se-checkout-intro-aside { width: min(250px, 100%); flex: none; }
+.se-checkout-pickup-tag {
+  display: inline-block;
+  padding: .55rem .75rem .45rem;
+  background: var(--se-red);
+  color: #fff;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: .08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.se-checkout-intro-aside p { margin: .85rem 0 0; color: var(--se-muted); line-height: 1.5; }
+.se-checkout-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(320px, .85fr); gap: clamp(2.5rem, 6vw, 6rem); align-items: start; }
+.se-checkout-primary, .se-checkout-summary { min-width: 0; }
+.se-checkout-section { padding: 2.6rem 0 2.8rem; border-bottom: 1px solid var(--se-line); }
+.se-checkout-section-head { display: flex; align-items: baseline; gap: 1.25rem; margin-bottom: 1.75rem; }
+.se-checkout-index { color: var(--se-red); font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.5rem; }
+.se-checkout-section h2, .se-checkout-summary h2, .se-confirmation-receipt h2, .se-confirmation-pickup h2 {
+  margin: .2rem 0 0;
+  font-family: "Bebas Neue", Impact, "Arial Narrow", sans-serif;
+  font-size: clamp(2.3rem, 4vw, 3.3rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .025em;
+  text-transform: uppercase;
+}
+.se-checkout-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.15rem; }
+.se-checkout-field-wide { grid-column: 1 / -1; }
+.se-checkout-field label, .se-checkout-field-label { display: block; margin-bottom: .55rem; font-size: .91rem; font-weight: 600; }
+.se-checkout-field label > span:not(.se-checkout-optional) { color: var(--se-red-light); }
+.se-checkout-field input, .se-checkout-field select, .se-checkout-field textarea {
+  display: block;
+  width: 100%;
+  min-height: 3.35rem;
+  border: 1px solid #806056;
+  border-radius: 0;
+  background: #211c1a;
+  color: #f8f3ee;
+  padding: .82rem 1rem;
+  font: inherit;
+  font-size: 1rem;
+  appearance: none;
+}
+.se-checkout-field input::placeholder, .se-checkout-field textarea::placeholder { color: #b5a9a0; opacity: 1; }
+.se-checkout-field select { padding-right: 2.8rem; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='10' viewBox='0 0 16 10'%3E%3Cpath d='m2 2 6 6 6-6' fill='none' stroke='%23ff8587' stroke-width='2'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; }
+.se-checkout-field textarea { min-height: 6.2rem; resize: vertical; line-height: 1.5; }
+.se-checkout-help, .se-checkout-final-note { margin: .85rem 0 0; color: var(--se-muted); font-size: .87rem; line-height: 1.5; }
+.se-checkout-pickup-box {
+  background: #211b19;
+  border-left: 3px solid var(--se-red);
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1.4rem;
+}
+.se-checkout-location-label { font-weight: 600; }
+.se-checkout-pickup-box address { margin-top: .35rem; color: #e8dbd1; font-style: normal; line-height: 1.45; }
+.se-checkout-hours { margin: .75rem 0 0; color: #ffac9f; font-size: .86rem; }
+.se-checkout-availability { min-height: 1.25rem; margin: .7rem 0 0; color: #efb7a8; font-size: .9rem; line-height: 1.4; }
+.se-checkout-payment-intro { margin: -1rem 0 1.55rem; }
+.se-checkout-card-mount { min-height: 6.5rem; padding: 1rem; border: 1px solid #806056; background: #211c1a; }
+.se-checkout-wallets { display: grid; gap: .7rem; margin-top: .8rem; }
+.se-checkout-wallet-mount:empty { display: none; }
+.se-checkout-pay, .se-confirmation-call {
+  display: flex;
+  width: 100%;
+  min-height: 3.7rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: .8rem 1.1rem;
+  margin-top: 1.5rem;
+  border: 0;
+  background: var(--se-red);
+  color: #fff;
+  font-family: "Bebas Neue", Impact, sans-serif;
+  font-size: 1.55rem;
+  font-weight: 400;
+  letter-spacing: .06em;
+  line-height: 1;
+  text-align: left;
+  text-decoration: none;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.se-checkout-pay:not(:disabled):hover, .se-confirmation-call:hover { background: #b71920; }
+.se-checkout-pay:disabled { background: #554440; color: #ddcdc6; cursor: not-allowed; }
+.se-checkout-error { padding: .85rem 1rem; margin: 1rem 0 0; border-left: 3px solid #ff8587; background: #3a1c1e; color: #ffe6e3; line-height: 1.45; }
+.se-checkout-status { min-height: 1.2rem; margin: .85rem 0 0; color: #e5d6cb; font-size: .9rem; line-height: 1.45; }
+.se-checkout-final-note { margin-top: .5rem; }
+.se-checkout-summary {
+  position: sticky;
+  top: 6.5rem;
+  padding: 2rem;
+  margin-top: 2.5rem;
+  border: 1px solid #604139;
+  background: var(--se-panel);
+}
+.se-checkout-summary-top { display: flex; justify-content: space-between; align-items: end; gap: 1rem; padding-bottom: 1.2rem; border-bottom: 2px solid var(--se-red); }
+.se-checkout-summary-top a { flex: none; color: #ffc6bb; font-size: .9rem; text-underline-offset: .2em; }
+.se-checkout-items { list-style: none; padding: 0; margin: 0; }
+.se-checkout-items > li { padding: 1rem 0; border-bottom: 1px solid var(--se-line); }
+.se-checkout-items-pending { color: var(--se-muted); font-size: .94rem; }
+.se-checkout-notes { margin-top: 1.4rem; }
+.se-checkout-optional { color: #c5b6ad; font-size: .82rem; font-weight: 400; }
+.se-checkout-total-row { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; padding: 1.1rem 0 .35rem; margin-top: 1.35rem; border-top: 2px solid #9c6259; font-weight: 600; text-transform: uppercase; }
+.se-checkout-total-row strong { color: var(--se-red-light); font-family: "Bebas Neue", Impact, sans-serif; font-size: 2rem; font-weight: 400; line-height: 1; }
+.se-checkout-total-note { margin: .3rem 0 0; color: var(--se-muted); font-size: .82rem; }
+.se-checkout-summary-footer { padding-top: 2rem; margin-top: 2.1rem; border-top: 1px solid var(--se-line); }
+.se-checkout-rule { display: block; width: 2.25rem; height: 3px; background: var(--se-red); }
+.se-checkout-summary-footer p { margin: .8rem 0 .2rem; color: var(--se-muted); font-size: .9rem; }
+.se-checkout-summary-footer a { color: #fff; font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.5rem; letter-spacing: .04em; text-decoration-color: var(--se-red); text-underline-offset: .2em; }
+
+/* Confirmation uses the same receipt vocabulary rather than an unrelated success theme. */
+.se-confirmation-hero { position: relative; padding: 4rem 0 3rem; border-top: 1px solid var(--se-line); border-bottom: 3px solid var(--se-red); overflow: hidden; }
+.se-confirmation-hero h1 { position: relative; margin-top: 1.2rem; font-size: clamp(4.5rem, 11vw, 9.5rem); }
+.se-confirmation-hero h1 span { color: var(--se-red); }
+.se-confirmation-hero > p:last-child { position: relative; max-width: 32rem; margin: 1.4rem 0 0; color: #e0d1c6; font-size: clamp(1rem, 1.8vw, 1.25rem); line-height: 1.5; }
+.se-confirmation-mark { position: absolute; right: -.03em; bottom: -.25em; color: #2b1a19; font-family: "Bebas Neue", Impact, sans-serif; font-size: clamp(11rem, 30vw, 29rem); line-height: 1; pointer-events: none; }
+.se-confirmation-grid { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(280px, .75fr); gap: clamp(1.2rem, 5vw, 5rem); padding-top: 3.4rem; }
+.se-confirmation-receipt, .se-confirmation-pickup { min-width: 0; }
+.se-confirmation-receipt { padding: 2rem; border: 1px solid #604139; background: var(--se-panel); }
+.se-confirmation-receipt-head { display: flex; justify-content: space-between; align-items: end; gap: 1.5rem; padding-bottom: 1.3rem; border-bottom: 2px solid var(--se-red); }
+.se-confirmation-number { text-align: right; }
+.se-confirmation-number span, .se-confirmation-detail > span { display: block; color: #d4c4ba; font-size: .76rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+.se-confirmation-number strong { display: block; overflow-wrap: anywhere; margin-top: .3rem; color: #fff; font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.7rem; font-weight: 400; letter-spacing: .04em; }
+.se-confirmation-list-heading { margin: 1.7rem 0 .5rem; font-family: "Bebas Neue", Impact, sans-serif; font-size: 1.45rem; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; }
+.se-confirmation-pickup { padding: 1.7rem 0; }
+.se-confirmation-pickup h2 { margin-bottom: 2rem; }
+.se-confirmation-detail { border-top: 1px solid var(--se-line); padding: 1.15rem 0; }
+.se-confirmation-detail strong, .se-confirmation-detail address { display: block; margin-top: .45rem; color: #fff; font-size: 1.08rem; font-weight: 600; font-style: normal; line-height: 1.5; overflow-wrap: anywhere; }
+.se-confirmation-help { margin: 1.4rem 0 0; color: var(--se-muted); line-height: 1.5; }
+.se-confirmation-call { margin-top: .8rem; }
+.se-confirmation-bottom { display: flex; justify-content: space-between; align-items: end; gap: 2rem; padding-top: 3.7rem; }
+.se-confirmation-bottom p { margin: 0; font-family: "Bebas Neue", Impact, sans-serif; font-size: clamp(3rem, 6vw, 5rem); line-height: 1; text-transform: uppercase; }
+.se-confirmation-bottom a { color: #ffc6bb; font-weight: 600; text-decoration-color: var(--se-red); text-underline-offset: .3em; }
+.se-confirmation-bottom a span { margin-left: .4rem; }
+
+@media (max-width: 800px) {
+  .se-checkout-grid, .se-confirmation-grid { grid-template-columns: 1fr; gap: 0; }
+  .se-checkout-summary { position: static; grid-row: 1; margin-top: 1.5rem; }
+  .se-confirmation-grid { gap: 1.2rem; }
+  .se-confirmation-pickup { padding: 1.7rem 0 0; }
+}
+@media (max-width: 600px) {
+  .se-checkout-page { padding-bottom: 5rem; }
+  .se-checkout-wrap { width: calc(100% - 2rem); }
+  .se-checkout-back { min-height: 4.3rem; font-size: .72rem; gap: .6rem; }
+  .se-checkout-intro { display: block; padding: 2.4rem 0 2rem; }
+  .se-checkout-intro h1 { font-size: clamp(4rem, 15vw, 6rem); }
+  .se-checkout-intro-aside { width: auto; margin-top: 1.6rem; }
+  .se-checkout-intro-aside p { max-width: 21rem; }
+  .se-checkout-summary { padding: 1.3rem; }
+  .se-checkout-section { padding: 2rem 0; }
+  .se-checkout-fields { grid-template-columns: 1fr; }
+  .se-checkout-field-wide { grid-column: auto; }
+  .se-checkout-section-head { gap: 1rem; }
+  .se-confirmation-hero { padding: 3rem 0 2.5rem; }
+  .se-confirmation-hero h1 { font-size: clamp(4.1rem, 15vw, 6.2rem); }
+  .se-confirmation-mark { font-size: 12rem; bottom: -.18em; right: -.15em; }
+  .se-confirmation-receipt { padding: 1.3rem; }
+  .se-confirmation-receipt-head { align-items: start; flex-direction: column; gap: 1rem; }
+  .se-confirmation-number { text-align: left; }
+  .se-confirmation-bottom { align-items: start; flex-direction: column; gap: 1rem; }
+}

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { siteConfig, restaurant, menu } from './menu-data.js';
+import { checkoutView, confirmationView } from './src/checkout-view.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -402,7 +403,7 @@ const menuHead = homeHead
   .replace(`<meta name="twitter:title" content="${restaurant.name}">`, `<meta name="twitter:title" content="Menu &amp; Order | ${restaurant.name}">`)
   .replace(`<meta property="og:url" content="${siteUrl}">`, `<meta property="og:url" content="${siteUrl}/menu/">`)
   .replace(`<link rel="canonical" href="${siteUrl}">`, `<link rel="canonical" href="${siteUrl}/menu/">`)
-  .replace('</head>', '  <script type="module" src="/src/menu-order.js"></script>\n</head>');
+  .replace('</head>', '  <script type="module" src="/src/menu-square.js"></script>\n</head>');
 const menuHeader = html.match(/<!-- Header \/ Nav -->[\s\S]*?<\/header>/)[0]
   .replace('href="#" aria-label="S&E BBQ home"', 'href="/" aria-label="S&E BBQ home"')
   .replace('href="/menu/" class=', 'href="/menu/" aria-current="page" class=');
@@ -450,7 +451,8 @@ ${menuHeader}
   <div class="order-hero">
     <p class="menu-kicker">Slow smoked · Made with soul</p>
     <h1>The menu<span class="hero-period">.</span></h1>
-    <p>Pick your favorites and review your order before calling us.</p>
+    <p>Browse the menu. Order pickup with Square when online ordering is available, or call us.</p>
+    <p id="ordering-status" class="ordering-status" role="status" aria-live="polite">Checking online pickup ordering…</p>
     <div class="order-hero-actions">
       <a href="#category-0">Explore the menu ↓</a>
       <a class="delivery-link" href="${siteConfig.deliveryUrl}" target="_blank" rel="noopener noreferrer" aria-label="Order delivery (opens in a new tab)">Order delivery ↗</a>
@@ -463,7 +465,7 @@ ${menuHeader}
     </nav>
     ${renderOrderMenu()}
   </div>
-  <div class="order-ending"><span>Good food takes time.</span><p>Call to confirm your order and pickup details.</p></div>
+  <div class="order-ending"><span>Good food takes time.</span><p>Pickup checkout is available only when the Square menu is connected. You can always call to order.</p></div>
   <noscript><p class="text-center p-6">To build an order, enable JavaScript, or call us at <a href="tel:${restaurant.phone}">${restaurant.displayPhone}</a>.</p></noscript>
 </main>
 ${menuFooter}
@@ -479,34 +481,46 @@ ${menuFooter}
   <div class="dialog-heading"><div><p class="menu-kicker">Your favorites</p><h2 id="cart-title">Your order</h2></div><button class="dialog-close" type="button" data-close aria-label="Close">×</button></div>
   <div id="cart-items"></div>
   <div class="cart-summary"><span>Estimated subtotal</span><strong id="cart-subtotal">$0.00</strong></div>
-  <p class="cart-disclaimer">Tax, availability, and pickup details are confirmed by the restaurant. This is not a placed or paid order.</p>
-  <button id="preview-checkout" class="dialog-secondary" type="button" disabled>Preview Square checkout · demo</button>
+  <p class="cart-disclaimer">This is an estimate. Square calculates the final total, including tax, before payment. Your order is not placed until payment is confirmed.</p>
+  <a id="checkout-pickup" class="dialog-secondary" href="/checkout/" aria-disabled="true">Checkout pickup with Square</a>
   <a class="call-order" href="tel:${restaurant.phone}">Call to order: ${restaurant.displayPhone}</a>
   <a class="delivery-order-link" href="${siteConfig.deliveryUrl}" target="_blank" rel="noopener noreferrer">Order delivery ↗</a>
   <p class="cart-disclaimer">Delivery opens a separate ordering site. Items in this cart will not transfer.</p>
-</dialog>
-<dialog id="checkout-dialog" class="order-dialog checkout-dialog" aria-labelledby="checkout-title">
-  <div class="dialog-heading"><div><p class="menu-kicker">Checkout preview</p><h2 id="checkout-title">Review your order</h2></div><button class="dialog-close" type="button" data-close aria-label="Close">×</button></div>
-  <p class="checkout-demo-banner"><strong>Demo only</strong> — Square is not connected. No payment or order can be submitted here.</p>
-  <div class="checkout-steps" aria-label="Checkout steps"><span class="is-current">1. Review</span><span>2. Pickup</span><span>3. Square payment</span></div>
-  <div class="checkout-section-heading"><h3>Your items</h3><button id="edit-order" type="button">Edit order</button></div>
-  <div id="checkout-items" class="checkout-items"></div>
-  <div class="checkout-totals">
-    <div><span>Subtotal</span><strong id="checkout-subtotal"></strong></div>
-    <div><span>Tax &amp; fees</span><span>Calculated at live checkout</span></div>
-    <div class="checkout-total"><span>Estimated total before tax</span><strong id="checkout-total"></strong></div>
-  </div>
-  <div class="checkout-next">
-    <span class="checkout-next-number">02 / Pickup &amp; payment</span>
-    <p>When checkout is connected, customers will confirm pickup details and continue to Square’s secure payment page.</p>
-    <button type="button" disabled>Continue to Square — not connected</button>
-    <small>No card details are requested or stored in this demo.</small>
-  </div>
 </dialog>
 </body>
 </html>`;
 fs.mkdirSync(path.join(__dirname, 'menu'), { recursive: true });
 fs.writeFileSync(path.join(__dirname, 'menu', 'index.html'), compact(menuHtml), 'utf-8');
+
+const checkoutHeader = menuHeader.replace('href="/menu/" aria-current="page" class=', 'href="/menu/" class=');
+const checkoutHead = homeHead
+  .replace(`<title>${restaurant.name} | Tennessee BBQ</title>`, `<title>Pickup Checkout | ${restaurant.name}</title>`)
+  .replace(/<meta name="description" content="[^"]*">/, `<meta name="description" content="Review and pay for your Slow & Easley BBQ pickup order securely with Square.">`)
+  .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="Pickup Checkout | ${restaurant.name}">`)
+  .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${siteUrl}/checkout/">`)
+  .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${siteUrl}/checkout/">`)
+  .replace('</head>', '  <meta name="robots" content="noindex,follow">\n  <link rel="stylesheet" href="/src/checkout.css">\n  <script type="module" src="/src/checkout.js"></script>\n</head>');
+const confirmationHead = checkoutHead
+  .replace(/Pickup Checkout/g, 'Pickup Confirmation')
+  .replace(/<meta property="og:url" content="[^"]*">/, `<meta property="og:url" content="${siteUrl}/confirmation/">`)
+  .replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${siteUrl}/confirmation/">`)
+  .replace('/src/checkout.js', '/src/confirmation.js');
+for (const [directory, head, body] of [
+  ['checkout', checkoutHead, checkoutView()],
+  ['confirmation', confirmationHead, confirmationView()]
+]) {
+  fs.mkdirSync(path.join(__dirname, directory), { recursive: true });
+  fs.writeFileSync(path.join(__dirname, directory, 'index.html'), compact(`<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+${head}
+<body class="font-sans antialiased bg-[#0a0a0a] text-white overflow-x-hidden pt-[60px] md:pt-[76px]">
+${checkoutHeader}
+${body}
+${menuFooter}
+${mobileCallButton}
+</body>
+</html>`), 'utf-8');
+}
 
 const publicDir = path.join(__dirname, 'public');
 if (!fs.existsSync(publicDir)) {
