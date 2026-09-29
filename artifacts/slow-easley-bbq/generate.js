@@ -192,7 +192,7 @@ const html = `<!DOCTYPE html>
           </a>
           ${hasRealPhone ? `
           <a href="tel:${restaurant.phone}" class="w-full sm:w-auto border-2 border-white text-white font-display text-xl tracking-widest uppercase px-8 py-4 hover:bg-white hover:text-[#0a0a0a] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d91f26]">
-            Call to Order
+            Call
           </a>
           ` : `
           <span class="w-full sm:w-auto border-2 border-zinc-600 text-zinc-400 font-display text-xl tracking-widest uppercase px-8 py-4 cursor-not-allowed" title="Phone number coming soon">
