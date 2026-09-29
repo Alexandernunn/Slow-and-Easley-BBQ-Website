@@ -557,4 +557,4 @@ Sitemap: ${siteUrl}/sitemap.xml`;
 
 fs.writeFileSync(path.join(publicDir, 'robots.txt'), robots, 'utf-8');
 
-console.log('✅ Generated home, menu, about/location, sitemap.xml, and robots.txt from menu-data.js');
+console.log('Generated home, menu, about, checkout, confirmation, sitemap, and robots from menu-data.js');

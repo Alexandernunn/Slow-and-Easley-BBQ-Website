@@ -1,1 +1,2 @@
 - [Mobile menu navigation preference](mobile-menu-preference.md) — user favors a thin persistent strip with all categories visible and a prominent active indicator.
+- [Netlify CLI in monorepos](netlify-monorepo-cli.md) — noninteractive function builds require an explicit app filter and executable selection.

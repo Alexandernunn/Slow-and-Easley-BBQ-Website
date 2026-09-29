@@ -21,3 +21,10 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+SQUARE_APPLICATION_ID = "sq0idp-ND1akWGLCySaFe7QTo5rCg"
+SQUARE_LOCATION_ID = "LDP4P27GPJM7M"
+SQUARE_ENVIRONMENT = "production"

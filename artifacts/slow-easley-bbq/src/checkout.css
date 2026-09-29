@@ -1,3 +1,4 @@
+.se-confirmation-grid[hidden], .se-confirmation-bottom[hidden] { display: none; }
 /* Pickup checkout / confirmation — extends the established S&E type and colors. */
 .se-checkout-page {
   --se-red: #d91f26;

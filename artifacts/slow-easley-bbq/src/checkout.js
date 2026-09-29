@@ -42,6 +42,9 @@ function nowOpen(now = new Date()) {
 function updateButton() {
   payButton.disabled = !ready || !card || !quote || !slotSelect.value || !nowOpen() || processing;
   if (quote) payButton.firstChild.textContent = `Pay ${money(quote.amountCents)} for pickup `;
+  const wallets = document.querySelector('.se-checkout-wallets');
+  wallets.style.pointerEvents = processing ? 'none' : '';
+  wallets.setAttribute('aria-busy', String(processing));
 }
 
 function updateSlots() {
@@ -120,18 +123,30 @@ function loadSquareScript(environment) {
   });
 }
 
-async function completePayment(sourceId) {
-  if (processing || !ready || !quote || !slotSelect.value || !nowOpen()) {
+function beginPayment() {
+  if (processing) return false;
+  if (!ready || !quote || !slotSelect.value || !nowOpen()) {
     error('Online ordering is unavailable or closed. Please call the restaurant.');
-    return;
+    return false;
   }
   if (!form.reportValidity()) {
     error('Please complete your name, phone, email, and pickup time before paying.');
-    return;
+    return false;
   }
   processing = true;
   updateButton();
   error('');
+  return true;
+}
+
+function finishPayment() {
+  processing = false;
+  updateButton();
+}
+
+async function completePayment(sourceId) {
+  // beginPayment() acquired the shared lock before any card or wallet tokenization.
+  if (!processing) return;
   status.textContent = 'Checking your total and processing payment. Please do not leave this page.';
   try {
     const current = await api('quote-order', { method: 'POST', body: JSON.stringify({ items: cart }) });
@@ -168,6 +183,7 @@ async function completePayment(sourceId) {
     sessionStorage.setItem(RECEIPT_KEY, JSON.stringify(receipt));
     sessionStorage.removeItem(PENDING_KEY);
     localStorage.removeItem('slow-easley-square-cart-v2');
+    ready = false;
     location.assign(`${import.meta.env.BASE_URL}confirmation/`);
   } catch (caught) {
     status.textContent = '';
@@ -186,8 +202,7 @@ async function completePayment(sourceId) {
       }
     }
   } finally {
-    processing = false;
-    updateButton();
+    finishPayment();
   }
 }
 
@@ -242,11 +257,13 @@ async function boot() {
   for (const [wallet, selector] of [[apple, '#checkout-apple-pay'], [google, '#checkout-google-pay']]) {
     if (!wallet) continue;
     document.querySelector(selector).addEventListener('click', async () => {
+      if (!beginPayment()) return;
       try {
         const result = await wallet.tokenize();
         if (result.status === 'OK') await completePayment(result.token);
         else error('Wallet payment was not approved. Please try again or use a card.');
       } catch { error('Wallet payment was cancelled or unavailable.'); }
+      finally { if (processing) finishPayment(); }
     });
   }
   try {
@@ -254,8 +271,11 @@ async function boot() {
       redirectURL: location.href, referenceId: crypto.randomUUID()
     });
     cash.addEventListener('ontokenization', async event => {
-      if (event.detail?.tokenResult?.status === 'OK') await completePayment(event.detail.tokenResult.token);
-      else error('Cash App Pay was cancelled or unavailable.');
+      if (!beginPayment()) return;
+      try {
+        if (event.detail?.tokenResult?.status === 'OK') await completePayment(event.detail.tokenResult.token);
+        else error('Cash App Pay was cancelled or unavailable.');
+      } finally { if (processing) finishPayment(); }
     });
     await cash.attach('#checkout-cash-app-pay');
     document.querySelector('#checkout-cash-app-pay').hidden = false;
@@ -266,9 +286,8 @@ async function boot() {
 
 form.addEventListener('submit', async event => {
   event.preventDefault();
-  if (!card || processing || !form.reportValidity()) return;
+  if (!card || !beginPayment()) return;
   try {
-    error('');
     const result = await card.tokenize();
     if (result.status !== 'OK') {
       error('Check your card details and try again.');
@@ -277,6 +296,8 @@ form.addEventListener('submit', async event => {
     await completePayment(result.token);
   } catch {
     error('Square could not tokenize this card. Check your card details or call us.');
+  } finally {
+    if (processing) finishPayment();
   }
 });
 slotSelect.addEventListener('change', updateButton);

@@ -10,6 +10,7 @@ if (!order?.paymentId || !order?.orderId || !order?.orderNumber || !Number.isSaf
   heading.textContent = 'No confirmed order.';
   message.textContent = 'This page only shows after Square confirms payment. If you recently tried to pay, call us to check the order before trying again.';
   document.querySelector('.se-confirmation-grid').hidden = true;
+  document.querySelector('.se-confirmation-bottom').hidden = true;
 } else {
   heading.innerHTML = 'Order received<span>.</span>';
   message.textContent = 'Payment confirmed. We’ll get to work; you come hungry.';
