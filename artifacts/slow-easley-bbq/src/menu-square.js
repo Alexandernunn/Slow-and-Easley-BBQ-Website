@@ -45,7 +45,7 @@ function refreshCart() {
         <button class="remove-row" type="button" data-remove="${index}">Remove</button>
       </div>
     </div>`;
-  }).join('') : '<p class="empty-cart">Your order is empty. Select a Square menu item or call to order.</p>';
+  }).join('') : '<p class="empty-cart">Your order is empty. Select a menu item or call to order.</p>';
   document.querySelector('#cart-subtotal').textContent = money(rows.reduce((sum, { row, item }) =>
     sum + estimatedUnit(item, row.modifierIds) * row.quantity, 0));
   checkoutLink.setAttribute('aria-disabled', String(!rows.length || rows.length !== cart.length));
@@ -180,10 +180,10 @@ itemForm.addEventListener('submit', event => {
     modifierIds.push(...selectedIds);
   }
   const notes = String(data.get('notes') || '').trim();
-  const key = JSON.stringify([selected.variationId, [...modifierIds].sort(), notes]);
-  const existing = cart.find(row => JSON.stringify([row.variationId, [...row.modifierIds].sort(), row.notes]) === key);
+  const key = JSON.stringify([selected.itemId, [...modifierIds].sort(), notes]);
+  const existing = cart.find(row => JSON.stringify([row.itemId, [...row.modifierIds].sort(), row.notes]) === key);
   if (existing) existing.quantity = Math.min(99, existing.quantity + 1);
-  else cart.push({ variationId: selected.variationId, quantity: 1, modifierIds, notes });
+  else cart.push({ itemId: selected.itemId, quantity: 1, modifierIds, notes });
   saveCart();
   itemDialog.close();
   cartDialog.showModal();
@@ -197,12 +197,12 @@ function renderLiveMenu(items) {
   menu.clear();
   const groups = new Map();
   for (const item of items) {
-    menu.set(item.variationId, item);
+    menu.set(item.itemId, item);
     if (!groups.has(item.category)) groups.set(item.category, []);
     groups.get(item.category).push(item);
   }
   if (!groups.size) throw new Error('Square has no orderable menu items at this location.');
-  // Replace the crawlable snapshot only after a complete catalog response arrives.
+  // Replace the crawlable snapshot only after a complete website-menu response arrives.
   document.querySelectorAll('.menu-section').forEach(section => section.remove());
   const originalLabels = new Map([...nav.querySelectorAll('a')].map(link =>
     [link.getAttribute('aria-label'), link.querySelector('.category-label-mobile')?.textContent]));
@@ -220,18 +220,18 @@ function renderLiveMenu(items) {
           ${item.imageUrl && /^https:\/\//i.test(item.imageUrl) ? `<img class="square-menu-image" src="${escapeHtml(item.imageUrl)}" alt="" loading="lazy" decoding="async">` : ''}
           ${item.description ? `<p>${escapeHtml(item.description)}</p>` : '<p class="menu-card-spacer" aria-hidden="true"></p>'}
           ${warning ? `<p class="menu-setup-warning">${escapeHtml(warning)} Call to order this item.</p>` : ''}
-          <button class="add-item" type="button" data-item="${escapeHtml(item.variationId)}" ${warning ? 'disabled' : ''} aria-label="Add to order: ${escapeHtml(item.name)}">Add to order <span aria-hidden="true">＋</span></button></li>`;
+          <button class="add-item" type="button" data-item="${escapeHtml(item.itemId)}" ${warning ? 'disabled' : ''} aria-label="Add to order: ${escapeHtml(item.name)}">Add to order <span aria-hidden="true">＋</span></button></li>`;
       }).join('')}</ul>`;
     layout.append(section);
   });
   updateNavigation();
-  const validCart = cart.filter(row => menu.has(row.variationId) && !requiresSetup(menu.get(row.variationId)));
+  const validCart = cart.filter(row => menu.has(row.itemId) && !requiresSetup(menu.get(row.itemId)));
   if (validCart.length !== cart.length) {
     cart = validCart;
     saveCart();
-    status.textContent = 'Some saved items are no longer available in Square and were removed. Review your order before checkout.';
+    status.textContent = 'Some saved items are no longer available on the website and were removed. Review your order before checkout.';
   } else {
-    status.textContent = 'Square pickup menu is ready. Final prices and tax are confirmed before you pay.';
+    status.textContent = 'Website pickup menu is ready. Final prices and tax are confirmed before you pay.';
   }
   refreshCart();
 }

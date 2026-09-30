@@ -13,28 +13,25 @@ import {
   validatePickupAt
 } from "./square-utils.mjs";
 import { handler as createOrderHandler } from "../create-order.mjs";
+import { handler as quoteOrderHandler } from "../quote-order.mjs";
+import {
+  buildWebsiteOrderRequest,
+  normalizeWebsiteItems,
+  publicWebsiteMenu,
+  validateWebsiteItems,
+  websiteOrderTaxes
+} from "./website-order.mjs";
 
 const locationId = "loc-1";
 const testNow = new Date("2030-01-02T17:00:00.000Z");
 
 function createOrderTestDependencies(orderTotalCents) {
   let paymentCalls = 0;
-  const item = {
-    variationId: "var-1",
-    name: "Smoked chicken",
-    priceCents: 1000,
-    _modifierGroups: [{
-      id: "modifier-list-1",
-      name: "Cheese",
-      minSelectedModifiers: 0,
-      maxSelectedModifiers: 2,
-      allowQuantities: true,
-      options: [{ id: "modifier-1", name: "Cheddar", priceCents: 200 }]
-    }]
-  };
+  let orderRequest;
   const client = {
     orders: {
-      async create() {
+      async create(request) {
+        orderRequest = request;
         return {
           order: {
             id: "order-1",
@@ -79,9 +76,10 @@ function createOrderTestDependencies(orderTotalCents) {
   return {
     client,
     paymentCalls: () => paymentCalls,
+    orderRequest: () => orderRequest,
     now: testNow,
     settings: { locationId },
-    catalog: { byVariation: new Map([[item.variationId, item]]) }
+    taxes: [{ catalogObjectId: "tax-1", scope: "ORDER" }]
   };
 }
 
@@ -92,7 +90,11 @@ function createOrderEvent(expectedAmountCents) {
       attemptId: "d9428888-122b-4fd9-9a4a-1d6a4a9b7a50",
       sourceId: "square-token",
       expectedAmountCents,
-      items: [{ variationId: "var-1", quantity: 2, modifierIds: ["modifier-1"] }],
+      items: [{
+        itemId: "entree-whitefish",
+        quantity: 2,
+        modifierIds: ["side-fries", "side-green-beans", "fish-regular", "fish-cheese"]
+      }],
       customer: { name: "Test Customer", phone: "5551234567", email: "test@example.com" },
       pickupAt: "2030-01-02T17:30:00.000Z"
     })
@@ -273,18 +275,15 @@ test("create-order requires a positive safe integer expected amount", async () =
 });
 
 test("completed order receipts include modifier labels and modifier-inclusive unit prices", async () => {
-  const dependencies = createOrderTestDependencies(3000);
-  const response = await createOrderHandler(createOrderEvent(3000), dependencies);
+  const dependencies = createOrderTestDependencies(2600);
+  const response = await createOrderHandler(createOrderEvent(2600), dependencies);
   const body = JSON.parse(response.body);
   assert.equal(response.statusCode, 200);
-  assert.equal(body.items[0].unitPriceCents, 1200);
-  assert.equal(body.items[0].lineTotalCents, 2400);
-  assert.deepEqual(body.items[0].modifiers, [{
-    id: "modifier-1",
-    name: "Cheddar",
-    unitPriceCents: 200,
-    quantity: 1
-  }]);
+  assert.equal(body.items[0].unitPriceCents, 1300);
+  assert.equal(body.items[0].lineTotalCents, 2600);
+  assert.equal(body.items[0].modifiers.at(-1).name, "Cheese");
+  assert.equal(dependencies.orderRequest().order.lineItems[0].basePriceMoney.amount, 1300n);
+  assert.deepEqual(dependencies.orderRequest().order.taxes, [{ catalogObjectId: "tax-1", scope: "ORDER" }]);
 });
 
 test("production Square configuration requires webhook signature verification", () => {
@@ -293,12 +292,83 @@ test("production Square configuration requires webhook signature verification", 
     SQUARE_LOCATION_ID: locationId,
     SQUARE_ACCESS_TOKEN: "access-token",
     SQUARE_ENVIRONMENT: "production",
-    SQUARE_LIVE_ENABLED: "true"
+    SQUARE_LIVE_ENABLED: "true",
+    SQUARE_WEBSITE_MENU_ENABLED: "true"
   };
   assert.throws(() => squareSettings(env), /requires webhook signature verification/);
   assert.equal(
     squareSettings({ ...env, SQUARE_WEBHOOK_SIGNATURE_KEY: "signature-key" }).environment,
     "production"
+  );
+  assert.throws(() => squareSettings({
+    ...env, SQUARE_WEBHOOK_SIGNATURE_KEY: "signature-key", SQUARE_WEBSITE_MENU_ENABLED: "false"
+  }), /awaiting merchant verification/);
+});
+
+test("website menu is independent of Square item catalog and validates real options", () => {
+  const publicItems = publicWebsiteMenu().items;
+  assert.ok(publicItems.length > 20);
+  assert.equal(new Set(publicItems.map(item => item.itemId)).size, publicItems.length);
+  const [validated] = validateWebsiteItems(normalizeWebsiteItems([{
+    itemId: "entree-whitefish",
+    quantity: 1,
+    modifierIds: ["side-fries", "side-green-beans", "fish-cajun", "fish-cheese"]
+  }]));
+  assert.equal(validated.unitPriceCents, 1300);
+  assert.equal(validated.lineItem.catalogObjectId, undefined);
+  assert.equal(validated.lineItem.basePriceMoney.amount, 1300n);
+  assert.deepEqual(buildWebsiteOrderRequest([validated], locationId, []).lineItems, [validated.lineItem]);
+  for (const modifierIds of [
+    ["side-fries", "fish-cajun"],
+    ["side-fries", "side-fries", "fish-cajun"],
+    ["side-fries", "side-green-beans"],
+    ["side-fries", "side-green-beans", "fish-cajun", "unauthorized-option"]
+  ]) {
+    assert.throws(() => validateWebsiteItems(normalizeWebsiteItems([{
+      itemId: "entree-whitefish", quantity: 1, modifierIds
+    }])), /Choose|not available/);
+  }
+  assert.throws(() => validateWebsiteItems(normalizeWebsiteItems([
+    { itemId: "not-on-website", quantity: 1 }
+  ])), /no longer on the website/);
+  assert.throws(() => normalizeWebsiteItems([{ variationId: "var-1", quantity: 1 }]), /website menu ID/);
+});
+
+test("website quote sends server-priced custom items and configured taxes to Square", async () => {
+  let calculated;
+  const result = await quoteOrderHandler({
+    httpMethod: "POST",
+    body: JSON.stringify({
+      items: [{
+        itemId: "entree-whitefish", quantity: 2,
+        modifierIds: ["side-fries", "side-green-beans", "fish-cajun", "fish-cheese"]
+      }]
+    })
+  }, {
+    settings: { locationId },
+    taxes: [{ catalogObjectId: "tax-1", scope: "ORDER" }],
+    client: { orders: { async calculate(request) {
+      calculated = request.order;
+      return { order: { totalMoney: { amount: 2782n, currency: "USD" } } };
+    } } }
+  });
+  assert.equal(result.statusCode, 200);
+  assert.equal(JSON.parse(result.body).amountCents, 2782);
+  assert.equal(calculated.lineItems[0].basePriceMoney.amount, 1300n);
+  assert.equal(calculated.lineItems[0].quantity, "2");
+  assert.deepEqual(calculated.taxes, [{ catalogObjectId: "tax-1", scope: "ORDER" }]);
+});
+
+test("custom-order taxes use only enabled Square tax rules for this location", async () => {
+  const client = { catalog: { async search() { return { objects: [
+    { id: "tax-1", type: "TAX", taxData: { enabled: true, appliesToCustomAmounts: true } },
+    { id: "tax-2", type: "TAX", taxData: { appliesToCustomAmounts: false } },
+    { id: "tax-3", type: "TAX", absentAtLocationIds: [locationId], taxData: { appliesToCustomAmounts: true } }
+  ] }; } } };
+  assert.deepEqual(await websiteOrderTaxes(client, locationId), [{ catalogObjectId: "tax-1", scope: "ORDER" }]);
+  await assert.rejects(
+    websiteOrderTaxes({ catalog: { async search() { return { objects: [] }; } } }, locationId, {}),
+    /no tax enabled/
   );
 });
 

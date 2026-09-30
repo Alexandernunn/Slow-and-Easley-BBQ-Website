@@ -1,4 +1,4 @@
-import { api, escapeHtml, estimatedUnit, getCart, money, orderLines } from './order-store.js';
+import { api, CART_KEY, escapeHtml, estimatedUnit, getCart, money, orderLines } from './order-store.js';
 
 const form = document.querySelector('#checkout-form');
 const status = document.querySelector('#checkout-status');
@@ -88,7 +88,7 @@ function updateSlots() {
 function renderCart() {
   const rows = orderLines(cart, catalog);
   if (!rows.length || rows.length !== cart.length) {
-    throw new Error('Your saved order contains an item that is no longer available in Square. Return to the menu and rebuild your order.');
+    throw new Error('Your saved order contains an item that is no longer on the website menu. Return to the menu and rebuild your order.');
   }
   summary.innerHTML = rows.map(({ row, item }) => {
     const options = item.modifiers.flatMap(group => group.options).filter(option => row.modifierIds.includes(option.id));
@@ -154,12 +154,12 @@ async function completePayment(sourceId) {
       quote = current;
       total.textContent = money(quote.amountCents);
       ready = false;
-      throw new Error('Square updated your total. Please refresh checkout, review the updated total, and tokenize a new payment.');
+      throw new Error('Your order total changed. Please refresh checkout, review the updated total, and tokenize a new payment.');
     }
     const attemptId = crypto.randomUUID();
     sessionStorage.setItem(PENDING_KEY, attemptId);
     const items = cart.map((row, index) => ({
-      variationId: row.variationId, quantity: row.quantity,
+      itemId: row.itemId, quantity: row.quantity,
       modifierIds: row.modifierIds,
       notes: index === 0
         ? [row.notes, document.querySelector('#checkout-item-notes').value.trim()].filter(Boolean).join(' | ').slice(0, 500)
@@ -182,7 +182,7 @@ async function completePayment(sourceId) {
     }
     sessionStorage.setItem(RECEIPT_KEY, JSON.stringify(receipt));
     sessionStorage.removeItem(PENDING_KEY);
-    localStorage.removeItem('slow-easley-square-cart-v2');
+    localStorage.removeItem(CART_KEY);
     ready = false;
     location.assign(`${import.meta.env.BASE_URL}confirmation/`);
   } catch (caught) {
@@ -235,7 +235,7 @@ async function boot() {
   }
   const [config, result] = await Promise.all([api('square-config'), api('get-menu')]);
   if (!['production', 'sandbox'].includes(config.environment)) throw new Error('Square ordering is not configured.');
-  catalog = new Map(result.items.map(item => [item.variationId, item]));
+  catalog = new Map(result.items.map(item => [item.itemId, item]));
   renderCart();
   await getQuote();
   updateSlots();

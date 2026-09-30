@@ -1,25 +1,26 @@
 import {
-  buildSquareOrderRequest,
   cancelUnpaidPickupFulfillment,
   CURRENCY,
-  confirmedOrderItems,
   ensureRestaurantOpen,
   handleOptions,
   HttpError,
   idempotencyKey,
   handlePaymentFailure,
   jsonResponse,
-  loadCatalog,
   methodNotAllowed,
-  normalizeOrderItems,
   parseJsonBody,
   squareClient,
   squareSettings,
   validateCustomer,
-  validateOrderItems,
   validatePickupAt,
   withErrors
 } from "./_shared/square-utils.mjs";
+import {
+  buildWebsiteOrderRequest,
+  normalizeWebsiteItems,
+  validateWebsiteItems,
+  websiteOrderTaxes
+} from "./_shared/website-order.mjs";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -58,7 +59,7 @@ export async function handler(event, dependencies = {}) {
     if (!Number.isSafeInteger(input.expectedAmountCents) || input.expectedAmountCents <= 0) {
       throw new HttpError(400, "expectedAmountCents must be a positive integer.");
     }
-    const items = normalizeOrderItems(input.items);
+    const items = normalizeWebsiteItems(input.items);
     const customer = validateCustomer(input.customer);
     const now = dependencies.now || new Date();
     ensureRestaurantOpen(now);
@@ -66,10 +67,10 @@ export async function handler(event, dependencies = {}) {
     const settings = dependencies.settings || squareSettings();
     const client = dependencies.client || squareClient(settings);
 
-    // Read the catalog on every checkout; neither client item prices nor stale catalog data are trusted.
-    const catalog = dependencies.catalog || await loadCatalog(client, settings.locationId);
-    const validatedItems = validateOrderItems(items, catalog);
-    const requestOrder = buildSquareOrderRequest(validatedItems, settings.locationId, {
+    // Website menu prices are loaded server-side; the browser supplies IDs and choices only.
+    const validatedItems = validateWebsiteItems(items);
+    const taxes = dependencies.taxes || await websiteOrderTaxes(client, settings.locationId);
+    const requestOrder = buildWebsiteOrderRequest(validatedItems, settings.locationId, taxes, {
       referenceId: input.attemptId,
       fulfillments: [{
         type: "PICKUP",
@@ -155,7 +156,7 @@ export async function handler(event, dependencies = {}) {
       );
     }
 
-    const confirmedItems = confirmedOrderItems(validatedItems);
+    const confirmedItems = validatedItems.map(({ lineItem, ...receiptItem }) => receiptItem);
     return jsonResponse(200, {
       orderId: order.id,
       orderNumber: order.ticketName || order.id,

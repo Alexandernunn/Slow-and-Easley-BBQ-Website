@@ -28,6 +28,9 @@ export function squareSettings(env = process.env) {
     if (env.SQUARE_LIVE_ENABLED !== "true") {
       throw new HttpError(503, "Live Square ordering is disabled.");
     }
+    if (env.SQUARE_WEBSITE_MENU_ENABLED !== "true") {
+      throw new HttpError(503, "Website-menu checkout is awaiting merchant verification.");
+    }
     if (!env.SQUARE_WEBHOOK_SIGNATURE_KEY?.trim()) {
       throw new HttpError(503, "Live Square ordering requires webhook signature verification to be configured.");
     }

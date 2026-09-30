@@ -465,7 +465,7 @@ ${menuHeader}
     </nav>
     ${renderOrderMenu()}
   </div>
-  <div class="order-ending"><span>Good food takes time.</span><p>Pickup checkout is available only when the Square menu is connected. You can always call to order.</p></div>
+  <div class="order-ending"><span>Good food takes time.</span><p>Pickup checkout is available when secure ordering is connected. You can always call to order.</p></div>
   <noscript><p class="text-center p-6">To build an order, enable JavaScript, or call us at <a href="tel:${restaurant.phone}">${restaurant.displayPhone}</a>.</p></noscript>
 </main>
 ${menuFooter}

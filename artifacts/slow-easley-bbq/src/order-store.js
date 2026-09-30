@@ -1,4 +1,4 @@
-export const CART_KEY = 'slow-easley-square-cart-v2';
+export const CART_KEY = 'slow-easley-website-cart-v3';
 const apiBase = `${import.meta.env.BASE_URL.replace(/\/$/, '')}/.netlify/functions`;
 
 export const money = cents => new Intl.NumberFormat('en-US', {
@@ -13,7 +13,7 @@ export function getCart() {
   try {
     const rows = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
     return Array.isArray(rows) ? rows.filter(row =>
-      row && typeof row.variationId === 'string' && row.variationId &&
+      row && typeof row.itemId === 'string' && row.itemId &&
       Number.isInteger(row.quantity) && row.quantity > 0 && row.quantity <= 99 &&
       Array.isArray(row.modifierIds) && row.modifierIds.every(id => typeof id === 'string') &&
       typeof row.notes === 'string' && row.notes.length <= 500
@@ -43,7 +43,7 @@ export async function api(name, options = {}) {
 }
 
 export function orderLines(rows, catalog) {
-  return rows.map(row => ({ row, item: catalog.get(row.variationId) }))
+  return rows.map(row => ({ row, item: catalog.get(row.itemId) }))
     .filter(({ item }) => item);
 }
 
