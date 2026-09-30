@@ -16,17 +16,17 @@ import {
   websiteOrderTaxes
 } from "./_shared/website-order.mjs";
 
-export async function handler(event, dependencies = {}) {
+export async function handler(event) {
   if (event.httpMethod === "OPTIONS") return handleOptions();
   if (event.httpMethod !== "POST") return methodNotAllowed("POST");
 
   return withErrors(async () => {
     const input = parseJsonBody(event);
-    const settings = dependencies.settings || squareSettings();
+    const settings = squareSettings();
     const items = normalizeWebsiteItems(input.items);
-    const client = dependencies.client || squareClient(settings);
+    const client = squareClient(settings);
     const validated = validateWebsiteItems(items);
-    const taxes = dependencies.taxes || await websiteOrderTaxes(client, settings.locationId);
+    const taxes = await websiteOrderTaxes(client, settings.locationId);
     const result = await client.orders.calculate({
       order: buildWebsiteOrderRequest(validated, settings.locationId, taxes)
     });
