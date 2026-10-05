@@ -384,6 +384,21 @@ test("burger menu matches posted prices and validates cheese and extra bacon", (
   }])), /no longer on the website/);
 });
 
+test("new drinks use the shared $3 price in the menu and server order lines", () => {
+  const ids = [
+    "beverage-pepsi", "beverage-coke-zero", "beverage-dr-pepper", "beverage-minute-maid-lemonade"
+  ];
+  const items = publicWebsiteMenu().items;
+  for (const itemId of ids) {
+    assert.equal(items.find(item => item.itemId === itemId).priceCents, 300);
+    const [validated] = validateWebsiteItems(normalizeWebsiteItems([{ itemId, quantity: 2 }]));
+    assert.equal(validated.unitPriceCents, 300);
+    assert.equal(validated.lineTotalCents, 600);
+    assert.equal(validated.lineItem.basePriceMoney.amount, 300n);
+  }
+  assert.equal(items.find(item => item.itemId === "beverage-koolaid").priceCents, 500);
+});
+
 test("custom-order taxes use only enabled Square tax rules for this location", async () => {
   const client = { catalog: { async search() { return { objects: [
     { id: "tax-1", type: "TAX", taxData: { enabled: true, appliesToCustomAmounts: true } },

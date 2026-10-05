@@ -104,7 +104,11 @@ export const menu = [
   {
     category: "Beverages",
     items: [
-      { id: "beverage-koolaid", name: "Koolaid Juice", price: 5 }
+      { id: "beverage-koolaid", name: "Koolaid Juice", price: 5 },
+      { id: "beverage-pepsi", name: "Pepsi", price: 3 },
+      { id: "beverage-coke-zero", name: "Coke Zero", price: 3 },
+      { id: "beverage-dr-pepper", name: "Dr Pepper", price: 3 },
+      { id: "beverage-minute-maid-lemonade", name: "Minute Maid Lemonade", price: 3 }
     ]
   }
 ];
