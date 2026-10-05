@@ -140,7 +140,7 @@ function openItem(item) {
   document.querySelector('#item-options').innerHTML = item.modifiers.map((group, groupIndex) => {
     const min = Number(group.minSelectedModifiers || 0);
     const max = Number(group.maxSelectedModifiers || 0);
-    const type = max === 1 ? 'radio' : 'checkbox';
+    const type = max === 1 && min > 0 ? 'radio' : 'checkbox';
     const requirement = min ? `Choose ${min}${max > min ? `–${max}` : ''}` : (max ? `Up to ${max}` : 'Optional');
     return `<fieldset class="square-option-group" data-group="${groupIndex}">
       <legend>${escapeHtml(group.name)} <small>(${requirement})</small></legend>
@@ -213,7 +213,7 @@ function renderLiveMenu(items) {
     const section = document.createElement('section');
     section.className = 'menu-section';
     section.id = `category-${index}`;
-    section.innerHTML = `<div class="menu-section-heading"><div><p class="menu-kicker">0${index + 1} / The menu</p><h2>${escapeHtml(category)}</h2></div></div>
+    section.innerHTML = `<div class="menu-section-heading"><div><p class="menu-kicker">0${index + 1} / The menu</p><h2>${escapeHtml(category)}</h2></div>${entries[0].categoryNote ? `<p>${escapeHtml(entries[0].categoryNote)}</p>` : ''}</div>
       <ul class="menu-items">${entries.map(item => {
         const warning = requiresSetup(item);
         return `<li class="menu-card"><div class="menu-card-top"><h3>${escapeHtml(item.name)}</h3><strong>${money(item.priceCents)}</strong></div>

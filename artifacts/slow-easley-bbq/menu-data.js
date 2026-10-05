@@ -53,8 +53,19 @@ export const menu = [
     items: [
       { id: "sandwich-whitefish", name: "Fried Whitefish Sandwich", price: 12 },
       { id: "sandwich-pulled-pork", name: "Pulled Pork Sandwich", price: 12 },
-      { id: "sandwich-chicken", name: "Chicken Sandwich", price: 12 },
       { id: "sandwich-polish-sausage", name: "Polish Sausage Sandwich", price: 10 }
+    ]
+  },
+  {
+    category: "Burgers",
+    note: "Comes with lettuce, tomato, onion & pickle. Mayo, ketchup & mustard on the side. Add 2 strips of bacon +$1.",
+    items: [
+      { id: "burger-hamburger", name: "Hamburger", price: 7 },
+      { id: "burger-hamburger-fries", name: "Hamburger + Fries", price: 10 },
+      { id: "burger-cheeseburger", name: "Cheeseburger", price: 8, description: "Your choice of regular or Pepper Jack cheese" },
+      { id: "burger-cheeseburger-fries", name: "Cheeseburger + Fries", price: 11, description: "Your choice of regular or Pepper Jack cheese" },
+      { id: "burger-bacon-cheeseburger", name: "Bacon Cheeseburger", price: 9, description: "2 strips of bacon with your choice of regular or Pepper Jack cheese" },
+      { id: "burger-bacon-cheeseburger-fries", name: "Bacon Cheeseburger + Fries", price: 12, description: "2 strips of bacon with your choice of regular or Pepper Jack cheese" }
     ]
   },
   {

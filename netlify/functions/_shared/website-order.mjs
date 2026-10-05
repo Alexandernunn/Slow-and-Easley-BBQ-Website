@@ -49,17 +49,40 @@ const sauceType = {
   ]
 };
 
+const burgerCheese = {
+  id: "burger-cheese",
+  name: "Cheese",
+  minSelectedModifiers: 1,
+  maxSelectedModifiers: 1,
+  allowQuantities: false,
+  options: [
+    { id: "burger-cheese-regular", name: "Regular cheese", priceCents: 0 },
+    { id: "burger-cheese-pepper-jack", name: "Pepper Jack cheese", priceCents: 0 }
+  ]
+};
+const burgerBacon = {
+  id: "burger-extra-bacon",
+  name: "Extra bacon",
+  minSelectedModifiers: 0,
+  maxSelectedModifiers: 1,
+  allowQuantities: false,
+  options: [{ id: "burger-bacon-two-strips", name: "Add 2 strips of bacon", priceCents: 100 }]
+};
+
 const allItems = menu.flatMap(section => section.items.map(item => ({
   itemId: item.id,
   name: item.name,
   category: section.category,
+  categoryNote: section.note || "",
   description: item.description || "",
   priceCents: cents(item.price),
   imageUrl: null,
   modifiers: [
     ...(section.category === "Entrées" ? [sideGroup] : []),
     ...(["entree-whitefish", "entree-fish-spaghetti"].includes(item.id) ? [fishStyle, fishCheese] : []),
-    ...(item.id === "sauce-additional" ? [sauceType] : [])
+    ...(item.id === "sauce-additional" ? [sauceType] : []),
+    ...(section.category === "Burgers" && item.id.includes("cheeseburger") ? [burgerCheese] : []),
+    ...(section.category === "Burgers" ? [burgerBacon] : [])
   ]
 })));
 const byId = new Map(allItems.map(item => [item.itemId, item]));

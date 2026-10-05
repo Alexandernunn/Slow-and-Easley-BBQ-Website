@@ -359,6 +359,31 @@ test("website quote sends server-priced custom items and configured taxes to Squ
   assert.deepEqual(calculated.taxes, [{ catalogObjectId: "tax-1", scope: "ORDER" }]);
 });
 
+test("burger menu matches posted prices and validates cheese and extra bacon", () => {
+  const items = publicWebsiteMenu().items;
+  assert.equal(items.some(item => item.itemId === "sandwich-chicken"), false);
+  const burgers = items.filter(item => item.category === "Burgers");
+  assert.deepEqual(burgers.map(item => item.priceCents), [700, 1000, 800, 1100, 900, 1200]);
+  for (const item of burgers) {
+    const modifierIds = item.itemId.includes("cheeseburger") ? ["burger-cheese-pepper-jack"] : [];
+    const [plain] = validateWebsiteItems(normalizeWebsiteItems([{ itemId: item.itemId, quantity: 1, modifierIds }]));
+    assert.equal(plain.unitPriceCents, item.priceCents);
+    const [withBacon] = validateWebsiteItems(normalizeWebsiteItems([{
+      itemId: item.itemId, quantity: 2, modifierIds: [...modifierIds, "burger-bacon-two-strips"]
+    }]));
+    assert.equal(withBacon.lineTotalCents, (item.priceCents + 100) * 2);
+    assert.equal(item.modifiers.some(group => group.id === "entree-sides"), false);
+  }
+  for (const modifierIds of [[], ["burger-cheese-regular", "burger-cheese-pepper-jack"]]) {
+    assert.throws(() => validateWebsiteItems(normalizeWebsiteItems([{
+      itemId: "burger-cheeseburger", quantity: 1, modifierIds
+    }])), /Choose/);
+  }
+  assert.throws(() => validateWebsiteItems(normalizeWebsiteItems([{
+    itemId: "sandwich-chicken", quantity: 1
+  }])), /no longer on the website/);
+});
+
 test("custom-order taxes use only enabled Square tax rules for this location", async () => {
   const client = { catalog: { async search() { return { objects: [
     { id: "tax-1", type: "TAX", taxData: { enabled: true, appliesToCustomAmounts: true } },

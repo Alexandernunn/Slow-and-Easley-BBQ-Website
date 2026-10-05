@@ -80,6 +80,7 @@ const jsonLd = {
 const money = amount => `$${amount % 1 === 0 ? amount : amount.toFixed(2)}`;
 const mobileCategoryLabels = {
   Sandwiches: 'Sand-<br>wiches',
+  Burgers: 'Bur-<br>gers',
   'Add-Ons': 'Add-<br>Ons',
   'BBQ Sauces': 'BBQ<br>Sauces',
   Beverages: 'Bever-<br>ages',
@@ -460,7 +461,7 @@ ${menuHeader}
     </div>
   </div>
   <div class="order-layout">
-    <nav class="category-nav" aria-label="Menu categories">
+    <nav class="category-nav" aria-label="Menu categories" style="--category-count: ${menu.length}">
       ${menu.map((section, i) => `<a href="#category-${i}" aria-label="${section.category}"><span class="category-label-full">${section.category}</span><span class="category-label-mobile" aria-hidden="true">${mobileCategoryLabels[section.category] || section.category}</span></a>`).join('')}
     </nav>
     ${renderOrderMenu()}
