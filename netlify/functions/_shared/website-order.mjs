@@ -68,6 +68,13 @@ const burgerBacon = {
   allowQuantities: false,
   options: [{ id: "burger-bacon-two-strips", name: "Add 2 strips of bacon", priceCents: 100 }]
 };
+const baconBurgerCheese = {
+  ...burgerCheese,
+  options: burgerCheese.options.map(option => ({
+    ...option,
+    priceCents: option.id === "burger-cheese-pepper-jack" ? 200 : 0
+  }))
+};
 
 const allItems = menu.flatMap(section => section.items.map(item => ({
   itemId: item.id,
@@ -81,7 +88,8 @@ const allItems = menu.flatMap(section => section.items.map(item => ({
     ...(section.category === "Entrées" ? [sideGroup] : []),
     ...(["entree-whitefish", "entree-fish-spaghetti"].includes(item.id) ? [fishStyle, fishCheese] : []),
     ...(item.id === "sauce-additional" ? [sauceType] : []),
-    ...(section.category === "Burgers" && item.id.includes("cheeseburger") ? [burgerCheese] : []),
+    ...(section.category === "Burgers" && item.id.includes("cheeseburger")
+      ? [item.id === "burger-bacon-cheeseburger" ? baconBurgerCheese : burgerCheese] : []),
     ...(section.category === "Burgers" ? [burgerBacon] : [])
   ]
 })));

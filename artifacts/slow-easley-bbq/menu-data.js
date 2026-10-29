@@ -37,8 +37,8 @@ export const menu = [
     category: "Entrées",
     note: "All come with 2 sides, additional sides $5 each",
     items: [
-      { id: "entree-whitefish", name: "Fried Whitefish (Cajun or Regular)", price: 12, description: "Crispy fried whitefish with white onions, pickles, bread, hot sauce & mustard on the side. Add cheese +$1" },
-      { id: "entree-pulled-pork", name: "Pulled Pork Sandwich", price: 12, description: "Slow-cooked pulled pork on a soft bun with onions, jalapeños & pickles" },
+      { id: "entree-whitefish", name: "Fried Whitefish (Cajun or Regular)", price: 20, description: "Crispy fried whitefish with white onions, pickles, bread, hot sauce & mustard on the side. Add cheese +$1" },
+      { id: "entree-pulled-pork", name: "Pulled Pork Sandwich", price: 20, description: "Slow-cooked pulled pork on a soft bun with onions, jalapeños & pickles" },
       { id: "entree-wings-4", name: "Smoked Chicken Wings, 4 whole", price: 20, description: "Served with ranch and a roll" },
       { id: "entree-wings-6", name: "Smoked Chicken Wings, 6 whole", price: 25, description: "Served with ranch and a roll" },
       { id: "entree-spaghetti", name: "Spaghetti", price: 12, description: "Made with seasoned ground beef" },
@@ -51,8 +51,8 @@ export const menu = [
     category: "Sandwiches",
     note: "Served on a soft bun with pickles, red onions & jalapeños",
     items: [
-      { id: "sandwich-whitefish", name: "Fried Whitefish Sandwich", price: 12 },
-      { id: "sandwich-pulled-pork", name: "Pulled Pork Sandwich", price: 12 },
+      { id: "sandwich-whitefish", name: "Fried Whitefish Sandwich", price: 13 },
+      { id: "sandwich-pulled-pork", name: "Pulled Pork Sandwich", price: 13 },
       { id: "sandwich-polish-sausage", name: "Polish Sausage Sandwich", price: 10 }
     ]
   },
@@ -60,12 +60,12 @@ export const menu = [
     category: "Burgers",
     note: "Comes with lettuce, tomato, onion & pickle. Mayo, ketchup & mustard on the side. Add 2 strips of bacon +$1.",
     items: [
-      { id: "burger-hamburger", name: "Hamburger", price: 7 },
-      { id: "burger-hamburger-fries", name: "Hamburger + Fries", price: 10 },
-      { id: "burger-cheeseburger", name: "Cheeseburger", price: 8, description: "Your choice of regular or Pepper Jack cheese" },
-      { id: "burger-cheeseburger-fries", name: "Cheeseburger + Fries", price: 11, description: "Your choice of regular or Pepper Jack cheese" },
-      { id: "burger-bacon-cheeseburger", name: "Bacon Cheeseburger", price: 9, description: "2 strips of bacon with your choice of regular or Pepper Jack cheese" },
-      { id: "burger-bacon-cheeseburger-fries", name: "Bacon Cheeseburger + Fries", price: 12, description: "2 strips of bacon with your choice of regular or Pepper Jack cheese" }
+      { id: "burger-hamburger", name: "Hamburger", price: 8 },
+      { id: "burger-hamburger-fries", name: "Hamburger + Fries", price: 11 },
+      { id: "burger-cheeseburger", name: "Cheeseburger", price: 9, description: "Your choice of regular or Pepper Jack cheese" },
+      { id: "burger-cheeseburger-fries", name: "Cheeseburger + Fries", price: 12, description: "Your choice of regular or Pepper Jack cheese" },
+      { id: "burger-bacon-cheeseburger", name: "Bacon Cheeseburger", price: 10, description: "2 strips of bacon with regular cheese. Choose Pepper Jack for $12 total (+$2)." },
+      { id: "burger-bacon-cheeseburger-fries", name: "Bacon Cheeseburger + Fries", price: 13, description: "2 strips of bacon with your choice of regular or Pepper Jack cheese" }
     ]
   },
   {
@@ -91,24 +91,24 @@ export const menu = [
   {
     category: "Desserts",
     items: [
-      { id: "dessert-chess-pie", name: "Chess Pie", price: 4 }
+      { id: "dessert-chess-pie", name: "Chess Pie", price: 5 }
     ]
   },
   {
     category: "BBQ Sauces",
     note: "Regular or Spicy. Half Slab (6 bones) comes with 1 sauce, Whole Slab (12 bones) comes with 2 sauces.",
     items: [
-      { id: "sauce-additional", name: "Additional Sauce", price: 1 }
+      { id: "sauce-additional", name: "Additional Sauce", price: 0.75 }
     ]
   },
   {
     category: "Beverages",
     items: [
       { id: "beverage-koolaid", name: "Koolaid Juice", price: 5 },
-      { id: "beverage-pepsi", name: "Pepsi", price: 3 },
-      { id: "beverage-coke-zero", name: "Coke Zero", price: 3 },
-      { id: "beverage-dr-pepper", name: "Dr Pepper", price: 3 },
-      { id: "beverage-minute-maid-lemonade", name: "Minute Maid Lemonade", price: 3 }
+      { id: "beverage-pepsi", name: "Pepsi", price: 2 },
+      { id: "beverage-coke-zero", name: "Coke Zero", price: 2 },
+      { id: "beverage-dr-pepper", name: "Dr Pepper", price: 2 },
+      { id: "beverage-minute-maid-lemonade", name: "Minute Maid Lemonade", price: 2 }
     ]
   }
 ];

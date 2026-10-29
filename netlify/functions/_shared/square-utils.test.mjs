@@ -275,14 +275,14 @@ test("create-order requires a positive safe integer expected amount", async () =
 });
 
 test("completed order receipts include modifier labels and modifier-inclusive unit prices", async () => {
-  const dependencies = createOrderTestDependencies(2600);
-  const response = await createOrderHandler(createOrderEvent(2600), dependencies);
+  const dependencies = createOrderTestDependencies(4200);
+  const response = await createOrderHandler(createOrderEvent(4200), dependencies);
   const body = JSON.parse(response.body);
   assert.equal(response.statusCode, 200);
-  assert.equal(body.items[0].unitPriceCents, 1300);
-  assert.equal(body.items[0].lineTotalCents, 2600);
+  assert.equal(body.items[0].unitPriceCents, 2100);
+  assert.equal(body.items[0].lineTotalCents, 4200);
   assert.equal(body.items[0].modifiers.at(-1).name, "Cheese");
-  assert.equal(dependencies.orderRequest().order.lineItems[0].basePriceMoney.amount, 1300n);
+  assert.equal(dependencies.orderRequest().order.lineItems[0].basePriceMoney.amount, 2100n);
   assert.deepEqual(dependencies.orderRequest().order.taxes, [{ catalogObjectId: "tax-1", scope: "ORDER" }]);
 });
 
@@ -314,9 +314,9 @@ test("website menu is independent of Square item catalog and validates real opti
     quantity: 1,
     modifierIds: ["side-fries", "side-green-beans", "fish-cajun", "fish-cheese"]
   }]));
-  assert.equal(validated.unitPriceCents, 1300);
+  assert.equal(validated.unitPriceCents, 2100);
   assert.equal(validated.lineItem.catalogObjectId, undefined);
-  assert.equal(validated.lineItem.basePriceMoney.amount, 1300n);
+  assert.equal(validated.lineItem.basePriceMoney.amount, 2100n);
   assert.deepEqual(buildWebsiteOrderRequest([validated], locationId, []).lineItems, [validated.lineItem]);
   for (const modifierIds of [
     ["side-fries", "fish-cajun"],
@@ -349,12 +349,12 @@ test("website quote sends server-priced custom items and configured taxes to Squ
     taxes: [{ catalogObjectId: "tax-1", scope: "ORDER" }],
     client: { orders: { async calculate(request) {
       calculated = request.order;
-      return { order: { totalMoney: { amount: 2782n, currency: "USD" } } };
+      return { order: { totalMoney: { amount: 4494n, currency: "USD" } } };
     } } }
   });
   assert.equal(result.statusCode, 200);
-  assert.equal(JSON.parse(result.body).amountCents, 2782);
-  assert.equal(calculated.lineItems[0].basePriceMoney.amount, 1300n);
+  assert.equal(JSON.parse(result.body).amountCents, 4494);
+  assert.equal(calculated.lineItems[0].basePriceMoney.amount, 2100n);
   assert.equal(calculated.lineItems[0].quantity, "2");
   assert.deepEqual(calculated.taxes, [{ catalogObjectId: "tax-1", scope: "ORDER" }]);
 });
@@ -363,15 +363,16 @@ test("burger menu matches posted prices and validates cheese and extra bacon", (
   const items = publicWebsiteMenu().items;
   assert.equal(items.some(item => item.itemId === "sandwich-chicken"), false);
   const burgers = items.filter(item => item.category === "Burgers");
-  assert.deepEqual(burgers.map(item => item.priceCents), [700, 1000, 800, 1100, 900, 1200]);
+  assert.deepEqual(burgers.map(item => item.priceCents), [800, 1100, 900, 1200, 1000, 1300]);
   for (const item of burgers) {
     const modifierIds = item.itemId.includes("cheeseburger") ? ["burger-cheese-pepper-jack"] : [];
     const [plain] = validateWebsiteItems(normalizeWebsiteItems([{ itemId: item.itemId, quantity: 1, modifierIds }]));
-    assert.equal(plain.unitPriceCents, item.priceCents);
+    const cheesePremium = item.itemId === "burger-bacon-cheeseburger" ? 200 : 0;
+    assert.equal(plain.unitPriceCents, item.priceCents + cheesePremium);
     const [withBacon] = validateWebsiteItems(normalizeWebsiteItems([{
       itemId: item.itemId, quantity: 2, modifierIds: [...modifierIds, "burger-bacon-two-strips"]
     }]));
-    assert.equal(withBacon.lineTotalCents, (item.priceCents + 100) * 2);
+    assert.equal(withBacon.lineTotalCents, (item.priceCents + cheesePremium + 100) * 2);
     assert.equal(item.modifiers.some(group => group.id === "entree-sides"), false);
   }
   for (const modifierIds of [[], ["burger-cheese-regular", "burger-cheese-pepper-jack"]]) {
@@ -384,19 +385,40 @@ test("burger menu matches posted prices and validates cheese and extra bacon", (
   }])), /no longer on the website/);
 });
 
-test("new drinks use the shared $3 price in the menu and server order lines", () => {
+test("canned drinks use the posted $2 price in the menu and server order lines", () => {
   const ids = [
     "beverage-pepsi", "beverage-coke-zero", "beverage-dr-pepper", "beverage-minute-maid-lemonade"
   ];
   const items = publicWebsiteMenu().items;
   for (const itemId of ids) {
-    assert.equal(items.find(item => item.itemId === itemId).priceCents, 300);
+    assert.equal(items.find(item => item.itemId === itemId).priceCents, 200);
     const [validated] = validateWebsiteItems(normalizeWebsiteItems([{ itemId, quantity: 2 }]));
-    assert.equal(validated.unitPriceCents, 300);
-    assert.equal(validated.lineTotalCents, 600);
-    assert.equal(validated.lineItem.basePriceMoney.amount, 300n);
+    assert.equal(validated.unitPriceCents, 200);
+    assert.equal(validated.lineTotalCents, 400);
+    assert.equal(validated.lineItem.basePriceMoney.amount, 200n);
   }
   assert.equal(items.find(item => item.itemId === "beverage-koolaid").priceCents, 500);
+});
+
+test("poster price update preserves existing items and unlisted prices", () => {
+  const items = publicWebsiteMenu().items;
+  const expected = {
+    "entree-whitefish": 2000, "entree-pulled-pork": 2000,
+    "sandwich-whitefish": 1300, "sandwich-pulled-pork": 1300,
+    "dessert-chess-pie": 500, "sauce-additional": 75,
+    "entree-wings-4": 2000, "entree-wings-6": 2500, "entree-rib-plate": 2000,
+    "entree-spaghetti": 1200, "entree-leg-quarters": 1500, "entree-fish-spaghetti": 2000,
+    "sandwich-polish-sausage": 1000, "side-spicy-cabbage": 500, "addon-roll": 75,
+    "addon-wing": 300, "addon-fish": 500, "beverage-koolaid": 500
+  };
+  assert.equal(items.length, 33);
+  for (const [itemId, priceCents] of Object.entries(expected)) {
+    assert.equal(items.find(item => item.itemId === itemId)?.priceCents, priceCents, itemId);
+  }
+  const [regularBaconBurger] = validateWebsiteItems(normalizeWebsiteItems([{
+    itemId: "burger-bacon-cheeseburger", quantity: 1, modifierIds: ["burger-cheese-regular"]
+  }]));
+  assert.equal(regularBaconBurger.unitPriceCents, 1000);
 });
 
 test("custom-order taxes use only enabled Square tax rules for this location", async () => {
